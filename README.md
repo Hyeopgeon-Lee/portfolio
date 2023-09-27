@@ -5,6 +5,8 @@
 
 <학과 졸업후, 얻게 될 포트폴리오 예시 - 2024년 2월 졸업 예정자 : 허지혜 학생 포트폴리오>
 
+상단 화면의 '빅데이터과-졸업생-포트폴리오.pdf' 클릭하거나 아래 링크를 클릭하여 확인바랍니다.
+
 https://github.com/Hyeopgeon-Lee/portfolio/blob/main/%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0%EA%B3%BC-%EC%A1%B8%EC%97%85%EC%83%9D-%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4.pdf
 
 <데이터과 주요 공모전 수상 실적>
