@@ -4,6 +4,7 @@
 * 빅데이터학과 입학 상담 오픈채팅방 : https://open.kakao.com/o/gEd0JIad
 
 <학과 졸업후, 얻게 될 포트폴리오 예시 - 2024년 2월 졸업 예정자 : 허지혜 학생 포트폴리오>
+
 https://github.com/Hyeopgeon-Lee/portfolio/blob/main/%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0%EA%B3%BC-%EC%A1%B8%EC%97%85%EC%83%9D-%ED%8F%AC%ED%8A%B8%ED%8F%B4%EB%A6%AC%EC%98%A4.pdf
 
 <데이터과 주요 공모전 수상 실적>
