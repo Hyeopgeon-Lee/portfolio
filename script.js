@@ -15,7 +15,7 @@ const projects = [
       "회원·학습 이력 기능 개발과 AWS EC2 배포, 버그 수정"
     ],
     stack: ["Java", "Spring", "Python", "Flask", "KoNLPy", "MQTT", "Arduino", "AWS"],
-    images: ["assets/projects/project-01-overview.png", "assets/projects/project-01-architecture.png"],
+    images: ["/assets/projects/project-01-overview.png", "/assets/projects/project-01-architecture.png"],
     captions: ["프로젝트 개요와 주요 역할", "서비스 구성도"]
   },
   {
@@ -34,7 +34,7 @@ const projects = [
       "WebRTC 화상채팅 및 긴급상황 보호자 문자 전송 기능 구현"
     ],
     stack: ["Java", "Node.js", "OpenCV", "WebGazer.js", "WebRTC", "JPA", "AWS"],
-    images: ["assets/projects/project-02-overview.png", "assets/projects/project-02-architecture.png"],
+    images: ["/assets/projects/project-02-overview.png", "/assets/projects/project-02-architecture.png"],
     captions: ["프로젝트 개요와 주요 역할", "서비스 기능도"]
   },
   {
@@ -53,7 +53,7 @@ const projects = [
       "Spring Security와 JWT 인증, 여행 일정 공유 기능 구현"
     ],
     stack: ["Java", "Spring Boot", "Python", "Flask", "TensorFlow", "LSTM", "KoNLPy", "K-PaaS"],
-    images: ["assets/projects/project-03-overview.png", "assets/projects/project-03-pipeline.png"],
+    images: ["/assets/projects/project-03-overview.png", "/assets/projects/project-03-pipeline.png"],
     captions: ["프로젝트 개요와 주요 역할", "오피니언 마이닝 파이프라인"]
   },
   {
@@ -72,7 +72,7 @@ const projects = [
       "환경 뉴스 수집·자연어 처리와 JqCloud 워드클라우드 시각화"
     ],
     stack: ["Java", "Spring Boot", "Spring Cloud", "Python", "Flask", "MSA", "K-PaaS", "NLP"],
-    images: ["assets/projects/project-04-overview.png", "assets/projects/project-04-architecture.png"],
+    images: ["/assets/projects/project-04-overview.png", "/assets/projects/project-04-architecture.png"],
     captions: ["프로젝트 개요와 주요 역할", "MSA 서비스 기능도"]
   },
   {
@@ -91,7 +91,7 @@ const projects = [
       "위기대응 시나리오 기반 데이터 파이프라인 검증"
     ],
     stack: ["Java", "Spring Boot", "JavaScript", "Public API", "Kakao Map", "Data Pipeline"],
-    images: ["assets/projects/project-05-overview.png", "assets/projects/project-05-api.png"],
+    images: ["/assets/projects/project-05-overview.png", "/assets/projects/project-05-api.png"],
     captions: ["프로젝트 개요와 주요 역할", "공공 API 기반 코로나 현황"]
   },
   {
@@ -110,7 +110,7 @@ const projects = [
       "Chart.js 혼잡도 시각화와 WebSocket 실시간 지역 채팅"
     ],
     stack: ["Java", "Spring Boot", "Spring Cloud", "STT", "Spring Batch", "MongoDB", "Chart.js", "MSA"],
-    images: ["assets/projects/project-06-overview.png", "assets/projects/project-06-flow.png"],
+    images: ["/assets/projects/project-06-overview.png", "/assets/projects/project-06-flow.png"],
     captions: ["프로젝트 개요와 주요 역할", "서비스 흐름도"]
   },
   {
@@ -129,7 +129,7 @@ const projects = [
       "WebSocket·Redis 기반 유사 감정 보호자 채팅과 위치 기반 병원 정보"
     ],
     stack: ["Java", "Spring Boot", "Python", "KoBERT", "Redis", "WebSocket", "Chart.js", "Generative AI"],
-    images: ["assets/projects/project-07-overview.png", "assets/projects/project-07-flow.png"],
+    images: ["/assets/projects/project-07-overview.png", "/assets/projects/project-07-flow.png"],
     captions: ["프로젝트 개요와 주요 역할", "서비스 흐름도"]
   },
   {
@@ -148,7 +148,7 @@ const projects = [
       "FullCalendar 세무 일정, CLOVA Chatbot과 실시간 세무사 채팅"
     ],
     stack: ["Java", "Spring Boot", "CLOVA OCR", "Object Storage", "MariaDB", "Redis", "WebSocket", "FullCalendar"],
-    images: ["assets/projects/project-08-overview.png", "assets/projects/project-08-flow.png"],
+    images: ["/assets/projects/project-08-overview.png", "/assets/projects/project-08-flow.png"],
     captions: ["프로젝트 개요와 주요 역할", "서비스 흐름도"]
   }
 ];
