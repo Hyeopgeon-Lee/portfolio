@@ -4,8 +4,9 @@
 
 ## 웹사이트
 
-- [포트폴리오 홈페이지](https://hyeopgeon-lee.github.io/portfolio/)
-- [학과 홈페이지](https://hyeopgeon-lee.github.io/k-bigdata/)
+- [포트폴리오 홈페이지](https://portfolio.k-bigdata.kr/)
+- [학과 홈페이지](https://ai.k-bigdata.kr/)
+- [교수 기술 블로그](https://prof.k-bigdata.kr/)
 - [PDF 원본](./bigdata-software-engineering-portfolio.pdf)
 
 ## 구성

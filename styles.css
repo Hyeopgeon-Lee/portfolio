@@ -136,6 +136,10 @@ img { display: block; max-width: 100%; }
 footer { display: grid; grid-template-columns: 1fr 1.8fr 1fr; gap: 2rem; align-items: end; padding: 3rem 4vw; color: var(--white); background: var(--ink); }
 footer p { margin: 0; color: rgba(255,255,255,.48); font-size: .72rem; }
 footer p:last-child { text-align: right; }
+.footer-info { display: grid; gap: .7rem; }
+.footer-network { display: flex; flex-wrap: wrap; gap: .9rem; }
+.footer-network a { color: var(--white); font-size: .78rem; font-weight: 700; }
+.footer-network a:hover, .footer-network a:focus-visible { color: var(--lime); }
 
 .project-dialog { width: min(1100px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: var(--radius); color: var(--ink); background: var(--paper); box-shadow: 0 30px 100px rgba(0,0,0,.5); }
 .project-dialog::backdrop { background: rgba(0,0,0,.76); backdrop-filter: blur(5px); }
