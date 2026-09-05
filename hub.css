@@ -44,7 +44,7 @@ img { display: block; max-width: 100%; }
   backdrop-filter: blur(12px);
 }
 .hub-brand { display: inline-flex; align-items: center; gap: .7rem; width: max-content; }
-.hub-brand-mark { display: grid; width: 2.55rem; height: 2.55rem; place-items: center; border-radius: 50%; color: var(--ink); background: var(--lime); font-size: 1.05rem; font-weight: 950; }
+.hub-brand-mark { display: grid; width: 2.55rem; height: 2.55rem; place-items: center; border-radius: 50%; color: var(--ink); background: var(--lime); font-size: .86rem; font-weight: 950; letter-spacing: -.04em; }
 .hub-brand span:last-child { display: grid; }
 .hub-brand strong { font-size: .82rem; line-height: 1.1; letter-spacing: -.025em; white-space: nowrap; }
 .hub-brand small { color: rgba(255,255,255,.55); font-size: .62rem; }
