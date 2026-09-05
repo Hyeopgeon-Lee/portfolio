@@ -1,12 +1,12 @@
-# 빅데이터소프트웨어학과 졸업생 포트폴리오
+# 빅데이터소프트웨어공학과 졸업생 포트폴리오
 
-한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어학과 졸업생의 프로젝트를 소개하는 웹 포트폴리오입니다.
+한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어공학과 졸업생의 프로젝트를 소개하는 웹 포트폴리오입니다.
 
 ## 웹사이트
 
 - [포트폴리오 홈페이지](https://hyeopgeon-lee.github.io/portfolio/)
 - [학과 홈페이지](https://hyeopgeon-lee.github.io/k-bigdata/)
-- [PDF 원본](./빅데이터과-졸업생-포트폴리오.pdf)
+- [PDF 원본](./bigdata-software-engineering-portfolio.pdf)
 
 ## 구성
 
