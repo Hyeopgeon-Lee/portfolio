@@ -46,7 +46,7 @@ img { display: block; max-width: 100%; }
 .hub-brand { display: inline-flex; align-items: center; gap: .7rem; width: max-content; }
 .hub-brand-mark { display: grid; width: 2.55rem; height: 2.55rem; place-items: center; border-radius: 50%; color: var(--ink); background: var(--lime); font-size: 1.05rem; font-weight: 950; }
 .hub-brand span:last-child { display: grid; }
-.hub-brand strong { font-size: .75rem; line-height: 1.1; letter-spacing: .08em; }
+.hub-brand strong { font-size: .82rem; line-height: 1.1; letter-spacing: -.025em; white-space: nowrap; }
 .hub-brand small { color: rgba(255,255,255,.55); font-size: .62rem; }
 .hub-nav { display: flex; gap: 1.7rem; }
 .hub-nav a { color: rgba(255,255,255,.64); font-size: .86rem; }
@@ -187,6 +187,9 @@ img { display: block; max-width: 100%; }
 
 @media (max-width: 640px) {
   .hub-header { min-height: 64px; padding: 0 1rem; }
+  .hub-brand { gap: .55rem; }
+  .hub-brand-mark { width: 2.35rem; height: 2.35rem; }
+  .hub-brand strong { font-size: .74rem; }
   .hub-brand small { display: none; }
   .hub-header-link { font-size: .72rem; }
   .hub-hero { padding: 4.5rem 1.2rem 4rem; }
