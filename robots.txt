@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://portfolio.k-bigdata.kr/sitemap.xml
+Sitemap: https://portfolio.k-bigdata.kr/video-sitemap.xml

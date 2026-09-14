@@ -212,7 +212,7 @@ function closeDialog() {
   document.body.classList.remove("dialog-open");
 }
 
-renderProjects();
+if (projectGrid.children.length === 0) renderProjects();
 
 projectGrid.addEventListener("click", (event) => {
   const trigger = event.target.closest("[data-project]");

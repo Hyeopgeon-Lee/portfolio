@@ -23,6 +23,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Generate search pages and sitemaps
+        run: node scripts/generate-seo.mjs
+      - name: Verify search metadata
+        run: node scripts/check-seo.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site

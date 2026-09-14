@@ -152,7 +152,8 @@ img { display: block; max-width: 100%; }
 .video-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .video-card { position: relative; transition: transform .2s ease, box-shadow .2s ease; }
 .video-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 0 var(--ink); }
-.video-card button { display: block; width: 100%; padding: 0; color: inherit; text-align: left; border: 0; background: transparent; cursor: pointer; }
+.video-card-link { display: block; width: 100%; padding: 0; color: inherit; text-align: left; border: 0; background: transparent; cursor: pointer; }
+.video-card[hidden] { display: none; }
 .video-thumb { position: relative; overflow: hidden; background: #ddd; }
 .video-thumb::after { content: "▶"; position: absolute; right: .8rem; bottom: .8rem; display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid var(--ink); border-radius: 50%; background: var(--lime); }
 .video-card-copy { padding: 1rem; }
@@ -173,6 +174,31 @@ img { display: block; max-width: 100%; }
 .video-dialog-copy h2 { margin: 0; font-size: 1.2rem; }
 .video-dialog-copy a { flex: 0 0 auto; color: var(--lime); font-size: .82rem; font-weight: 800; }
 
+/* Search-friendly individual video pages */
+.video-watch-main { min-height: 100vh; }
+.video-breadcrumb { display: flex; flex-wrap: wrap; gap: .55rem; max-width: var(--max); margin: 0 auto; padding: 2rem 2rem 0; color: var(--muted); font-size: .78rem; }
+.video-breadcrumb a { padding-bottom: .05rem; border-bottom: 1px solid var(--line); }
+.video-watch-hero { max-width: var(--max); margin: 0 auto; padding: clamp(3rem, 6vw, 6rem) 2rem clamp(5rem, 8vw, 8rem); }
+.video-watch-copy { max-width: 930px; }
+.video-watch-copy h1 { margin: 0; font-size: clamp(2.6rem, 6.5vw, 6.5rem); line-height: .98; letter-spacing: -.065em; }
+.video-watch-copy > p:not(.hub-kicker) { max-width: 760px; margin: 1.5rem 0 0; color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.15rem); }
+.video-watch-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 1.8rem 0 2rem; }
+.video-watch-meta div { min-width: 100px; padding-left: .8rem; border-left: 2px solid var(--ink); }
+.video-watch-meta dt { color: var(--muted); font-size: .68rem; font-weight: 800; }
+.video-watch-meta dd { margin: .15rem 0 0; font-size: .88rem; font-weight: 900; }
+.video-watch-frame { overflow: hidden; aspect-ratio: 16/9; border: 2px solid var(--ink); border-radius: var(--radius); background: #000; box-shadow: 10px 10px 0 var(--lime); }
+.video-watch-frame iframe { width: 100%; height: 100%; border: 0; }
+.video-watch-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+.video-related { max-width: var(--max); margin: 0 auto; padding: 0 2rem clamp(6rem, 10vw, 10rem); }
+.video-related .hub-section-head h2 { font-size: clamp(2.6rem, 4.4vw, 4.5rem); }
+.video-related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.video-related-card { overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: var(--white); transition: transform .2s ease, box-shadow .2s ease; }
+.video-related-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 0 var(--ink); }
+.video-related-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.video-related-card span { display: grid; gap: .4rem; padding: 1rem; }
+.video-related-card small { color: var(--blue); font-family: ui-monospace, monospace; font-size: .68rem; font-weight: 900; }
+.video-related-card strong { line-height: 1.35; }
+
 @media (max-width: 900px) {
   .hub-header { grid-template-columns: 1fr auto; }
   .hub-nav { display: none; }
@@ -183,6 +209,7 @@ img { display: block; max-width: 100%; }
   .hub-footer { grid-template-columns: 1fr; }
   .hub-footer p { text-align: left; }
   .video-grid, .latest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .video-related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -206,6 +233,12 @@ img { display: block; max-width: 100%; }
   .showcase-list { padding: 0 1.2rem 6rem; }
   .video-card h2 { min-height: 0; }
   .video-dialog-copy { flex-direction: column; }
+  .video-breadcrumb { padding: 1.5rem 1.2rem 0; }
+  .video-watch-hero { padding: 3rem 1.2rem 5rem; }
+  .video-watch-copy h1 { font-size: clamp(2.5rem, 12vw, 4rem); }
+  .video-watch-frame { box-shadow: 6px 6px 0 var(--lime); }
+  .video-related { padding: 0 1.2rem 6rem; }
+  .video-related-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

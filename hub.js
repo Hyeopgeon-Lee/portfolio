@@ -39,7 +39,7 @@ async function loadHub() {
         ...videos.slice(0, 3).map((video) => {
           const link = document.createElement("a");
           link.className = "latest-card";
-          link.href = `/showcase/?video=${encodeURIComponent(video.id)}`;
+          link.href = `/videos/${encodeURIComponent(video.id)}/`;
 
           const image = document.createElement("img");
           image.src = thumbnailUrl(video.id);
@@ -49,7 +49,7 @@ async function loadHub() {
           const copy = document.createElement("div");
           copy.className = "latest-card-copy";
           const meta = document.createElement("small");
-          meta.textContent = `${categoryLabel(video.category)}${video.cohort ? ` · ${video.cohort}기` : ""}`;
+          meta.textContent = `${categoryLabel(video.category)}${video.cohort ? ` · ${video.cohort}` : ""}`;
           const title = document.createElement("h3");
           title.textContent = video.title;
           copy.append(meta, title);
