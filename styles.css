@@ -165,6 +165,33 @@ footer p:last-child { text-align: right; }
 .dialog-gallery img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top; }
 .dialog-gallery figcaption { padding: .7rem .9rem; color: var(--muted); font-size: .7rem; }
 
+.project-detail-main { min-height: 100vh; }
+.project-breadcrumb { display: flex; flex-wrap: wrap; gap: .55rem; max-width: var(--max-width); margin: 0 auto; padding: 2rem 2rem 0; color: var(--muted); font-size: .78rem; }
+.project-breadcrumb a { padding-bottom: .05rem; border-bottom: 1px solid var(--line); }
+.project-detail-hero { max-width: var(--max-width); margin: 0 auto; padding: clamp(4rem, 8vw, 8rem) 2rem clamp(5rem, 9vw, 8rem); }
+.project-detail-hero h1 { max-width: 1100px; margin: 0; font-size: clamp(3rem, 7.5vw, 7.5rem); line-height: .96; letter-spacing: -.07em; }
+.project-detail-summary { max-width: 850px; margin: 2rem 0 0; color: var(--muted); font-size: clamp(1.1rem, 1.8vw, 1.45rem); }
+.project-detail-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; max-width: 900px; margin-top: 3rem; border: 1px solid var(--line); background: var(--line); }
+.project-detail-info div { padding: 1rem; background: var(--paper); }
+.project-detail-info span { display: block; margin-bottom: .35rem; color: var(--muted); font-family: ui-monospace, monospace; font-size: .68rem; font-weight: 800; letter-spacing: .12em; }
+.project-detail-info strong { font-size: .9rem; }
+.project-detail-content { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(3rem, 8vw, 8rem); padding: clamp(5rem, 9vw, 8rem) max(2rem, calc((100vw - var(--max-width)) / 2 + 2rem)); color: var(--white); background: var(--ink); }
+.project-detail-content h2, .project-detail-gallery h2 { margin: 0; font-size: clamp(2.8rem, 5.5vw, 5.4rem); line-height: .98; letter-spacing: -.06em; }
+.project-detail-content .section-index::before { color: var(--lime); }
+.project-detail-lead { margin: 0 0 2rem; color: rgba(255,255,255,.72); font-size: clamp(1.15rem, 1.8vw, 1.45rem); }
+.project-detail-highlights { margin: 0; padding-left: 1.2rem; }
+.project-detail-highlights li { margin-bottom: .9rem; color: rgba(255,255,255,.72); }
+.project-detail-stack { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2.5rem; }
+.project-detail-stack span { padding: .42rem .72rem; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; color: var(--lime); font-family: ui-monospace, monospace; font-size: .72rem; }
+.project-detail-gallery { max-width: var(--max-width); margin: 0 auto; padding: clamp(6rem, 10vw, 10rem) 2rem; }
+.project-detail-gallery-head { margin-bottom: 3rem; }
+.project-detail-gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.project-detail-gallery-grid figure { overflow: hidden; margin: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); }
+.project-detail-gallery-grid img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: top; }
+.project-detail-gallery-grid figcaption { padding: .8rem 1rem; color: var(--muted); font-size: .75rem; }
+.project-detail-next { display: flex; justify-content: space-between; gap: 2rem; align-items: end; max-width: var(--max-width); margin: 0 auto; padding: 0 2rem clamp(6rem, 10vw, 10rem); }
+.project-detail-next h2 { max-width: 780px; margin: 0; font-size: clamp(2rem, 4vw, 4rem); line-height: 1.05; letter-spacing: -.05em; }
+
 @media (max-width: 900px) {
   .site-header { grid-template-columns: 1fr auto; }
   .site-header nav { display: none; }
@@ -174,6 +201,7 @@ footer p:last-child { text-align: right; }
   .projects-header { align-items: start; flex-direction: column; }
   footer { grid-template-columns: 1fr; }
   footer p:last-child { text-align: left; }
+  .project-detail-content { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
   .site-header { min-height: 64px; padding: 0 1rem; }
@@ -190,6 +218,12 @@ footer p:last-child { text-align: right; }
   .award-project { grid-column: 2; text-align: left; }
   .dialog-info { grid-template-columns: 1fr; }
   .dialog-kicker { flex-direction: column; }
+  .project-breadcrumb { padding: 1.5rem 1.2rem 0; }
+  .project-detail-hero { padding: 4rem 1.2rem 5rem; }
+  .project-detail-info, .project-detail-gallery-grid { grid-template-columns: 1fr; }
+  .project-detail-content { padding: 5rem 1.2rem; }
+  .project-detail-gallery { padding: 5rem 1.2rem; }
+  .project-detail-next { align-items: start; flex-direction: column; padding: 0 1.2rem 5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

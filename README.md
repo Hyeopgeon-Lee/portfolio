@@ -14,7 +14,9 @@
 
 - `/` — 학과 전체 포트폴리오 안내
 - `/graduate/` — 우리학과 졸업생 허ㅇ혜의 대표 프로젝트 8개와 수상 성과
+- `/projects/프로젝트명/` — 대표 프로젝트별 문제·기여 내용·기술·구현 화면
 - `/showcase/` — 학과 졸업생·재학생 소프트웨어 시연영상
+- `/videos/영상ID/` — 영상별 상세 설명과 소프트웨어 시연
 
 시연영상은 학과 [YouTube 채널](https://www.youtube.com/@kopo-poly/videos)의 제목을 기준으로 분류했습니다.
 
@@ -28,4 +30,6 @@
 - 학과 홈페이지: <https://ai.k-bigdata.kr/>
 - 교수 기술 블로그: <https://prof.k-bigdata.kr/>
 
-GitHub Pages 배포는 `.github/workflows/pages.yml`에서 자동으로 진행됩니다.
+GitHub Pages 배포는 `.github/workflows/pages.yml`에서 자동으로 진행됩니다. 배포가 끝나면 사이트맵의 전체 URL을 IndexNow 참여 검색엔진에 자동으로 알립니다.
+
+YouTube에 새 영상 설명을 작성한 뒤 `node scripts/generate-seo.mjs --refresh-youtube`를 실행하면 공개된 작품 설명과 적용 기술이 영상 상세 페이지와 영상 사이트맵에 반영됩니다. 개발자 이름, 연락처, 개인 블로그·주소는 반영하지 않습니다.
