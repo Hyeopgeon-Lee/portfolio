@@ -78,15 +78,25 @@ jobs:
             --argjson urlList "$url_json" \
             '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList}' \
             > indexnow-payload.json
-          status=$(curl --silent --show-error \
-            --output indexnow-response.txt \
-            --write-out '%{http_code}' \
-            --header 'Content-Type: application/json; charset=utf-8' \
-            --data-binary @indexnow-payload.json \
-            https://api.indexnow.org/indexnow)
-          if [ "$status" != "200" ] && [ "$status" != "202" ]; then
+          for attempt in {1..6}; do
+            status=$(curl --silent --show-error \
+              --output indexnow-response.txt \
+              --write-out '%{http_code}' \
+              --header 'Content-Type: application/json; charset=utf-8' \
+              --data-binary @indexnow-payload.json \
+              https://api.indexnow.org/indexnow)
+            if [ "$status" = "200" ] || [ "$status" = "202" ]; then
+              echo "IndexNow accepted ${#urls[@]} URLs with HTTP $status."
+              exit 0
+            fi
+            if [ "$status" = "429" ] || [[ "$status" =~ ^5 ]]; then
+              sleep $((attempt * 10))
+              continue
+            fi
             echo "IndexNow returned HTTP $status" >&2
             cat indexnow-response.txt >&2
             exit 1
-          fi
-          echo "IndexNow accepted ${#urls[@]} URLs with HTTP $status."
+          done
+          echo "IndexNow did not accept the URLs after 6 attempts (last HTTP $status)." >&2
+          cat indexnow-response.txt >&2
+          exit 1
