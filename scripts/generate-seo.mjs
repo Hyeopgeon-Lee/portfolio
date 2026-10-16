@@ -185,7 +185,7 @@ function cardMarkup(video) {
   const label = categoryLabel(video.category);
   const cohort = video.cohort ? `${video.cohort}` : "학생 작품";
   const searchText = `${video.title} ${video.cohort ?? ""} ${truncate(video.description, 500)}`.toLocaleLowerCase("ko-KR");
-  return `          <article class="video-card" data-video-id="${htmlEscape(video.id)}" data-title="${htmlEscape(video.title)}" data-category="${htmlEscape(video.category)}" data-cohort="${htmlEscape(video.cohort ?? "")}" data-search="${htmlEscape(searchText)}">
+  return `          <article class="video-card" data-video-id="${htmlEscape(video.id)}" data-year="${htmlEscape(video.uploadDate?.slice(0, 4) ?? "")}" data-title="${htmlEscape(video.title)}" data-category="${htmlEscape(video.category)}" data-cohort="${htmlEscape(video.cohort ?? "")}" data-search="${htmlEscape(searchText)}">
             <a class="video-card-link" href="/videos/${encodeURIComponent(video.id)}/" aria-label="${htmlEscape(video.title)} 영상 페이지 보기">
               <div class="video-thumb"><img src="${thumbnailUrl(video.id)}" alt="${htmlEscape(video.title)} 영상 미리보기" loading="lazy" width="480" height="360" /></div>
               <div class="video-card-copy">
@@ -554,10 +554,16 @@ async function main() {
 
   const homePath = path.join(ROOT, "index.html");
   const home = replaceGeneratedBlock(
-    await readFile(homePath, "utf8"),
-    "<!-- SEO_LATEST_VIDEOS_START -->",
-    "<!-- SEO_LATEST_VIDEOS_END -->",
-    videos.slice(0, 3).map(latestCardMarkup).join("\n"),
+    replaceGeneratedBlock(
+      await readFile(homePath, "utf8"),
+      "<!-- SEO_LATEST_VIDEOS_START -->",
+      "<!-- SEO_LATEST_VIDEOS_END -->",
+      videos.slice(0, 3).map(latestCardMarkup).join("\n"),
+    ),
+    "<!-- SEO_2026_VIDEOS_START -->",
+    "<!-- SEO_2026_VIDEOS_END -->",
+    videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"))
+      .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
   );
   await writeFile(homePath, home, "utf8");
 
