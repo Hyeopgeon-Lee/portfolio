@@ -64,7 +64,7 @@ async function main() {
 
   const showcase = await readFile(path.join(ROOT, "showcase", "index.html"), "utf8");
   assert((showcase.match(/class="video-card"/g) ?? []).length === videos.length, "Showcase must contain one static card per video");
-  assert((showcase.match(/href="\/videos\/[A-Za-z0-9_-]{11}\//g) ?? []).length === videos.length, "Showcase video cards need crawlable links");
+  assert((showcase.match(/class="video-card-link" href="\/videos\/[A-Za-z0-9_-]{11}\//g) ?? []).length === videos.length, "Showcase video cards need crawlable links");
 
   const videoDirectories = (await readdir(path.join(ROOT, "videos"), { withFileTypes: true })).filter((entry) => entry.isDirectory());
   const activeDirectories = videoDirectories.filter((entry) => !unavailableIds.has(entry.name));
