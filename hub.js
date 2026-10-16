@@ -11,6 +11,12 @@ async function loadHub() {
     if (!response.ok) throw new Error("영상 목록을 불러오지 못했습니다.");
 
     const videos = await response.json();
+    const knownIds = new Set(videos.map((video) => video.id));
+    document.querySelectorAll("[data-pending-id]").forEach((link) => {
+      if (knownIds.has(link.dataset.pendingId)) link.remove();
+    });
+    const pending = document.querySelector("#pending-2026-videos");
+    if (pending && !pending.querySelector("[data-pending-id]")) pending.hidden = true;
     const yearVideos = videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"));
     document.querySelectorAll("[data-2026-count]").forEach((element) => {
       element.textContent = yearVideos.length.toLocaleString("ko-KR");
