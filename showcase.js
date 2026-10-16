@@ -45,6 +45,15 @@ function render() {
   elements.result.textContent = `${matches.length.toLocaleString("ko-KR")}개의 영상 중 ${visible.size.toLocaleString("ko-KR")}개를 보고 있습니다.`;
   elements.empty.classList.toggle("visible", matches.length === 0);
   elements.more.hidden = visible.size >= matches.length;
+  const pending = document.querySelector("#pending-2026-videos");
+  if (pending) {
+    const hasUnverifiedLinks = pending.querySelectorAll("[data-pending-id]").length > 0;
+    // These are directly confirmed 2026 graduation URLs, not 2025 works.
+    pending.hidden = !hasUnverifiedLinks ||
+      !["all", "graduate"].includes(state.category) ||
+      !["all", "2026"].includes(state.year) ||
+      Boolean(state.query.trim());
+  }
 }
 
 function openVideo(video) {
