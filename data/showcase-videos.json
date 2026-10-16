@@ -9,15 +9,6 @@
     "description": "작품 설명\nK-Stock Compass는 복잡한 재무제표 대신 AI 기반 5단계 신호등으로 상장기업의 재무 안정성을 직관적으로 제공하는 주식 재무 분석 플랫폼입니다.\n\n한국투자증권 Open API를 통해 실시간 주가 및 시장 지수를 조회할 수 있으며, DART 전자공시 API로 수집한 재무제표 데이터를 Gemini AI가 분석하여 1~5점의 신호등 점수와 자연어 해설을 자동 생성합니다.\n\n사용자는 관심종목을 등록하고 목표가 도달 시 실시간 알림을 받을 수 있으며, 보유 종목 포트폴리오 관리와 수익 시뮬레이션 기능을 통해 투자 전략을 체계적으로 수립할 수 있습니다.\n\nJWT 기반 Stateless 인증 구조와 Redis 다중 캐싱을 적용하여 보안성과 성능을 동시에 확보하였으며, AWS EC2 환경에 Docker 기반으로 배포하여 운영하고 있습니다.\n\n적용 기술\n프레임워크 : Spring Boot 3.x, Spring Security\n\n사용 언어 : Java 17, HTML5, CSS, JavaScript\n\n데이터베이스 : MariaDB (회원, 관심종목, 알림, 게시판, 포트폴리오 등), Redis (Refresh Token, 인증번호, 주가, 환율, AI 분석 데이터 캐싱)\n\n클라우드 : Amazon Web Services EC2, Docker\n\n통신 프로토콜 : REST API, HTTPS, SMTP\n\n웹서버 : Nginx (리버스 프록시, SSL)\n\n인증/보안 : JWT Token, AES-128 CBC 암호화, BCrypt\n\nAPI 활용 : 한국투자증권 Open API, DART 전자공시 API, Google Gemini API, 한국은행 ECOS API, 기상청 공공데이터 API\n\n기타 : Thymeleaf, WebClient, JPA/Hibernate, Redis"
   },
   {
-    "id": "BkbJVkaNyLo",
-    "title": "Smart Log Sync",
-    "category": "graduate",
-    "cohort": "",
-    "uploadDate": "2026-07-07T23:43:49-07:00",
-    "durationSeconds": 376,
-    "description": "작품 설명\n원본 메모를 작성하면 AI가 자동으로 정형화된 업무일지로 변환하고,\n일정 관리부터 보고서 자동 생성까지 업무 전 과정을 통합 관리하는 플랫폼입니다.\nGoogle Gemini API를 활용하여 구어체 메모를 공식 업무일지 형식으로 정제하고,\n등록된 일정과 업무일지 데이터를 분석하여 일간·주간·월간 보고서를 생성합니다.\n▸ 대시보드      — 오늘의 일정·최근 업무일지·실시간 날씨 한눈에 확인\n▸ AI 업무일지   — 원본 메모 입력 → Gemini AI가 정형화된 업무일지로 자동 변환\n▸ 스마트 일정   — 월간 캘린더 / 주간·일간 계획표 / 목록 / 반복 업무 설정\n▸ 지능형 리포트 — 일정+업무일지 데이터 기반 AI 보고서 자동 생성 및 문서 보관\n▸ 알림 센터     — 반복업무 일정 마감 1시간·30분전 자동 알림 (실시간 체크)\n▸ 회원 관리     — 회원가입(이메일 인증) / 로그인 / 아이디·비밀번호 찾기 / 마이페이지\n\n적용 기술\n\n프레임워크 : Spring Boot 3.x , Thymeleaf,  Bootstrap 5.3\n\n사용 언어 : Java 17, JavaScript, CSS\n\n데이터베이스 :\nMariaDB  — 회원 정보, 일정, 업무일지, 보고서, 알림 등 관계형 데이터\nMongoDB  — (연결 설정 구성됨)\n\n클라우드 : Amazon Web Services (EC2)\n\n통신 프로토콜 : HTTPS, SMTP\n\n웹 서버/배포 : Nginx (리버스 프록시)\n\n인증 / 보안 :\nSpring Security, BCrypt 비밀번호 암호화\nRememberMe (Persistent Token — DB 기반 자동 로그인)\n로그인 5회 실패 시 계정 잠금 / 비밀번호 변경 시 기존 세션 강제 만료\n\nAPI 활용 : OpenAI API, Safebooru API\n\n기타 :  JPA / Hibernate / Lombok / RestClient / @Scheduled (알림 자동 발송)"
-  },
-  {
     "id": "64mZfwmKD80",
     "title": "DeepScan",
     "category": "graduate",
