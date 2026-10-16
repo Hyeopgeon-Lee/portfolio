@@ -11,6 +11,33 @@ async function loadHub() {
     if (!response.ok) throw new Error("영상 목록을 불러오지 못했습니다.");
 
     const videos = await response.json();
+    const yearVideos = videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"));
+    document.querySelectorAll("[data-2026-count]").forEach((element) => {
+      element.textContent = yearVideos.length.toLocaleString("ko-KR");
+    });
+    const yearGrid = document.querySelector("#year-feature-grid");
+    if (yearGrid && yearVideos.length) {
+      yearGrid.replaceChildren(...yearVideos.slice(0, 6).map((video) => {
+        const link = document.createElement("a");
+        link.className = "latest-card";
+        link.href = `/videos/${encodeURIComponent(video.id)}/`;
+        const image = document.createElement("img");
+        image.src = thumbnailUrl(video.id);
+        image.alt = `${video.title} 영상 미리보기`;
+        image.loading = "lazy";
+        image.width = 480;
+        image.height = 360;
+        const copy = document.createElement("div");
+        copy.className = "latest-card-copy";
+        const type = document.createElement("small");
+        type.textContent = "2026 졸업작품";
+        const title = document.createElement("h3");
+        title.textContent = video.title;
+        copy.append(type, title);
+        link.append(image, copy);
+        return link;
+      }));
+    }
     const graduateCount = videos.filter((video) => video.category === "graduate").length;
     const practiceCount = videos.filter((video) => video.category === "practice").length;
 
