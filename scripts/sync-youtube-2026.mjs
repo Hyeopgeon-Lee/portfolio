@@ -15,7 +15,7 @@ const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 
 async function youtube(args, timeout = 180000) {
   const { stdout } = await run("yt-dlp", [
-    "--no-warnings", "--ignore-errors",
+    "--no-warnings", "--ignore-errors", "--js-runtimes", "node",
     ...args,
   ], { maxBuffer: 28 * 1024 * 1024, timeout });
   return JSON.parse(stdout);
