@@ -43,7 +43,7 @@ function updateArchiveNumbers(source, videos) {
     .replace(/(<span data-2026-count>)\d+/, `$1${graduation2026}`)
     .replace(/(<em>영상 )\d+(편 공개<\/em>)/, `$1${graduation2026}$2`)
     .replace(/2026 졸업작품 \d+편/g, `2026 졸업작품 ${graduation2026}편`)
-    .replace(/"numberOfItems": \d+/, `"numberOfItems": ${videos.length}`)
+    .replace(/"numberOfItems": \d+/, (value) => source.includes('id="video-grid"') ? `"numberOfItems": ${videos.length}` : value)
     .replace(/전체 \d+개의 시연영상을/, `전체 ${videos.length}개의 시연영상을`);
 }
 const cohortLabel = (video) => video.cohort ? `${video.cohort} · ` : "";
@@ -248,7 +248,7 @@ function uniqueTitleSuffixes(videos) {
 }
 
 function videoPage(video, index, videos, titleSuffix) {
-  const type = categoryLabel(video.category);
+  const type = archiveLabel(video);
   const canonical = watchUrl(video.id);
   const thumbnail = thumbnailUrl(video.id);
   const uploadDate = video.uploadDate;
