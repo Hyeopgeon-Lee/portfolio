@@ -33,7 +33,11 @@ function jsonLdBlocks(html, file) {
 async function main() {
   const videos = JSON.parse(await readFile(path.join(ROOT, "data", "showcase-videos.json"), "utf8"));
   const projects = JSON.parse(await readFile(path.join(ROOT, "data", "graduate-projects.json"), "utf8"));
-  assert(videos.length === 255, `Expected 255 videos, found ${videos.length}`);
+  const unavailable = JSON.parse(await readFile(path.join(ROOT, "data", "unavailable-videos.json"), "utf8"));
+  const unavailableIds = new Set(unavailable.map((video) => video.id));
+  assert(videos.length > 0, "Expected non-empty video inventory");
+  assert(unavailableIds.size === unavailable.length, "Unavailable-video IDs must be unique");
+  assert(videos.every((video) => !unavailableIds.has(video.id)), "Unavailable videos must not be present in the active archive");
   assert(new Set(videos.map((video) => video.id)).size === videos.length, "YouTube IDs must be unique");
   assert(videos.every((video) => video.uploadDate), "Every video needs an uploadDate");
   assert(videos.every((video) => video.durationSeconds > 0), "Every video needs a durationSeconds value");
@@ -63,7 +67,14 @@ async function main() {
   assert((showcase.match(/href="\/videos\/[A-Za-z0-9_-]{11}\//g) ?? []).length === videos.length, "Showcase video cards need crawlable links");
 
   const videoDirectories = (await readdir(path.join(ROOT, "videos"), { withFileTypes: true })).filter((entry) => entry.isDirectory());
-  assert(videoDirectories.length === videos.length, `Expected ${videos.length} video directories, found ${videoDirectories.length}`);
+  const activeDirectories = videoDirectories.filter((entry) => !unavailableIds.has(entry.name));
+  assert(activeDirectories.length === videos.length, `Expected ${videos.length} active video directories, found ${activeDirectories.length}`);
+  for (const unavailableVideo of unavailable) {
+    const file = `videos/${unavailableVideo.id}/index.html`;
+    const html = await readFile(path.join(ROOT, file), "utf8");
+    assert(html.includes('content="noindex, nofollow"'), `${file}: unavailable video page must be noindex`);
+    assert(!html.includes("<iframe"), `${file}: unavailable video page must not embed removed content`);
+  }
   const titles = [];
   const canonicals = [];
   const descriptions = [];
@@ -104,10 +115,12 @@ async function main() {
   const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   assert(sitemapUrls.length === videos.length + projects.length + 3, `Main sitemap must contain ${videos.length + projects.length + 3} URLs`);
   assert(new Set(sitemapUrls).size === sitemapUrls.length, "Main sitemap URLs must be unique");
+  assert(unavailable.every((video) => !sitemap.includes(`/videos/${video.id}/`)), "Main sitemap must omit unavailable video URLs");
 
   const videoSitemap = await readFile(path.join(ROOT, "video-sitemap.xml"), "utf8");
   assert((videoSitemap.match(/<video:video>/g) ?? []).length === videos.length, "Video sitemap count mismatch");
   assert((videoSitemap.match(/<video:publication_date>/g) ?? []).length === videos.length, "Video sitemap publication dates are incomplete");
+  assert(unavailable.every((video) => !videoSitemap.includes(video.id)), "Video sitemap must omit unavailable videos");
 
   if (errors.length) {
     process.stderr.write(`${errors.map((error) => `- ${error}`).join("\n")}\n`);
