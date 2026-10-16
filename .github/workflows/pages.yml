@@ -8,7 +8,7 @@ on:
     - cron: '20 22 * * *' # Every day 07:20 Asia/Seoul
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -29,6 +29,16 @@ jobs:
         run: python -m pip install --disable-pip-version-check yt-dlp
       - name: Synchronize official channel and classify 2026 videos
         run: node scripts/sync-youtube-2026.mjs
+      - name: Preserve validated YouTube inventory in repository
+        shell: bash
+        run: |
+          git add data/showcase-videos.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Sync verified 2026 project and graduation YouTube videos"
+            git push || echo "Unable to persist synchronized data; current Pages build still uses validated videos."
+          fi
       - name: Generate search pages and sitemaps
         run: node scripts/generate-seo.mjs
       - name: Verify search metadata
