@@ -193,6 +193,7 @@ function cardMarkup(video) {
                 <h2>${htmlEscape(video.title)}</h2>
               </div>
             </a>
+            <a class="video-direct-link" href="https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}" target="_blank" rel="noopener noreferrer" aria-label="${htmlEscape(video.title)} YouTube 원본 영상 바로 보기">▶ YouTube 영상 바로 보기 ↗</a>
           </article>`;
 }
 
