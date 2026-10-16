@@ -60,18 +60,13 @@ function safeDescription(value) {
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 6000);
 }
 async function main() {
-  let playlist;
+  let playlist = {entries: []};
   try {
     playlist = await youtube(["--flat-playlist", "--dump-single-json", "--playlist-end", "90", CHANNEL]);
   } catch (error) {
-    console.warn("YouTube channel is temporarily inaccessible; existing verified archive is preserved:", error.message);
-    return;
+    console.warn("YouTube channel listing unavailable; trying the three direct faculty-provided video links:", error.message);
   }
   const entries = (playlist.entries || []).filter(entry => VIDEO_ID.test(entry?.id));
-  if (!entries.length) {
-    console.warn("No YouTube entries were returned; no changes made.");
-    return;
-  }
 
   const inventory = JSON.parse(await readFile(DATA, "utf8"));
   const confirmed = JSON.parse(await readFile(CONFIRMED_LINKS, "utf8")).videos;
