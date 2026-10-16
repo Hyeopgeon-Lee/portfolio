@@ -253,3 +253,19 @@ img { display: block; max-width: 100%; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* 2026 graduate projects and year selection */
+.year-feature{padding-top:3rem;padding-bottom:3.5rem;border-top:1px solid var(--line)}
+.year-feature .hub-section-head em{font-style:normal;color:var(--blue)}
+.year-feature-info{display:flex;align-items:baseline;flex-wrap:wrap;gap:1rem;margin:-1rem 0 1.5rem}
+.year-feature-info strong{font-size:2rem;letter-spacing:-.05em}
+.year-feature-info>span{font-size:.88rem;color:var(--muted)}
+.year-feature-actions{margin-top:1.6rem}
+.showcase-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem}
+.showcase-year-shortcut{display:inline-flex;align-items:center;min-height:44px;padding:.5rem .85rem;border:1px solid var(--ink);border-radius:999px;background:var(--lime);font-size:.8rem;font-weight:850;white-space:nowrap}
+.showcase-year-label{font-size:.78rem;font-weight:850;white-space:nowrap}
+.showcase-year{min-height:44px;padding:.55rem .7rem;border:1px solid var(--ink);border-radius:.65rem;background:#fff;font:inherit;font-size:.84rem}
+.showcase-year:focus-visible,.showcase-year-shortcut:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.showcase-controls{flex-wrap:wrap;align-items:center}
+@media(max-width:760px){.showcase-toolbar{width:100%}.showcase-search{width:100%;flex:1 1 190px}.year-feature{padding-top:2rem}}
+@media(max-width:440px){.showcase-year-shortcut{width:100%;justify-content:center}.showcase-year-label{flex:1}.showcase-year{flex:1}.year-feature .latest-grid{grid-template-columns:1fr}}
