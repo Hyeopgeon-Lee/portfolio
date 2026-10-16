@@ -86,7 +86,12 @@ async function main() {
   // The channel playlist supplies IDs and original titles. Metadata for new
   // entries supplies an actual upload date, duration and description; never
   // invent timestamps, links or student names.
-  const candidates = entries
+  // The channel is newest-first. Stop at the first previously verified
+  // pre-2026 upload so historical videos are not re-fetched unnecessarily.
+  const previousYearIndex = entries.findIndex(entry =>
+    old.has(entry.id) && (old.get(entry.id).uploadDate || "").slice(0, 4) < "2026");
+  const relevantEntries = previousYearIndex < 0 ? entries : entries.slice(0, previousYearIndex);
+  const candidates = relevantEntries
     .filter(entry => !old.has(entry.id) && !blocked.has(entry.id))
     .filter(entry => /졸업\s*작품|프로젝트/i.test(entry.title || ""));
   let cursor = 0;
