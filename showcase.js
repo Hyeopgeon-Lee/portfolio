@@ -146,22 +146,8 @@ elements.more.addEventListener("click", () => {
   render();
 });
 
-elements.grid.addEventListener("click", (event) => {
-  const link = event.target.closest(".video-card-link");
-  const card = link?.closest("[data-video-id]");
-  if (link && card && typeof elements.dialog.showModal === "function") {
-    event.preventDefault();
-    openVideo(state.videos.find((video) => video.id === card.dataset.videoId));
-  }
-});
-
-elements.dialog.querySelector(".video-dialog-close").addEventListener("click", closeVideo);
-elements.dialog.addEventListener("click", (event) => {
-  if (event.target === elements.dialog) closeVideo();
-});
-elements.dialog.addEventListener("cancel", (event) => {
-  event.preventDefault();
-  closeVideo();
-});
+// Card links now follow their canonical detail pages normally.
+// Embedded playback can be disabled for individual YouTube videos; every card
+// has a separate direct YouTube watch link as an accessible alternative.
 
 loadShowcase();
