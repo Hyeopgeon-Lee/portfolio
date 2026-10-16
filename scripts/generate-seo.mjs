@@ -40,7 +40,7 @@ function updateArchiveNumbers(source, videos) {
     .replace(/(<span data-total-count>)\d+(?: VIDEOS)?/, `$1${videos.length} VIDEOS`)
     .replace(/(<strong data-graduate-count>)\d+/, `$1${graduates}`)
     .replace(/(<strong data-practice-count>)\d+/, `$1${practice}`)
-    .replace(/(<span data-2026-count>)\d+/, `$1${graduation2026}`)
+    .replace(/(<span data-2026-count>)\d+/g, `$1${graduation2026}`)
     .replace(/(<em>영상 )\d+(편 공개<\/em>)/, `$1${graduation2026}$2`)
     .replace(/2026 졸업작품 \d+편/g, `2026 졸업작품 ${graduation2026}편`)
     .replace(/"numberOfItems": \d+/, (value) => source.includes('id="video-grid"') ? `"numberOfItems": ${videos.length}` : value)
