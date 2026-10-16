@@ -23,7 +23,7 @@ async function youtube(args, timeout = 180000) {
 function toDate(value) {
   const digits = String(value || "").replace(/[^0-9]/g, "").slice(0, 8);
   return digits.length === 8
-    ? `${digits.slice(0,4)}-${digits.slice(4,6)}-${digits.slice(6,8)}T00:00:00+09:00`
+    ? `${digits.slice(0,4)}-${digits.slice(4,6)}-${digits.slice(6,8)}`
     : "";
 }
 function classification(title, date, fallback = "") {
