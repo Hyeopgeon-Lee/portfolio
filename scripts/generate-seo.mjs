@@ -6,6 +6,7 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const SITE_URL = "https://portfolio.k-bigdata.kr";
 const DATA_PATH = path.join(ROOT, "data", "showcase-videos.json");
 const PROJECTS_PATH = path.join(ROOT, "data", "graduate-projects.json");
+const UNAVAILABLE_VIDEOS_PATH = path.join(ROOT, "data", "unavailable-videos.json");
 const todayParts = Object.fromEntries(
   new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
@@ -522,6 +523,10 @@ function videoSitemapXml(videos, titleSuffixes) {
 
 async function main() {
   let videos = JSON.parse(await readFile(DATA_PATH, "utf8"));
+  const unavailableVideos = JSON.parse(await readFile(UNAVAILABLE_VIDEOS_PATH, "utf8"));
+  if (!Array.isArray(unavailableVideos)) throw new Error("Invalid unavailable video list");
+  const unavailableIds = new Set(unavailableVideos.map((entry) => entry.id));
+  videos = videos.filter((video) => !unavailableIds.has(video.id));
   const projects = JSON.parse(await readFile(PROJECTS_PATH, "utf8"));
   if (!Array.isArray(videos) || videos.length === 0) throw new Error("No showcase videos found");
   if (!Array.isArray(projects) || projects.length === 0) throw new Error("No graduate projects found");
