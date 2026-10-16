@@ -3,6 +3,7 @@ const PAGE_SIZE = 18;
 const state = {
   videos: [],
   category: "all",
+  year: "all",
   query: "",
   limit: PAGE_SIZE,
 };
@@ -13,6 +14,7 @@ const elements = {
   result: document.querySelector("#showcase-result"),
   more: document.querySelector("#load-more"),
   search: document.querySelector("#showcase-search"),
+  year: document.querySelector("#showcase-year"),
   dialog: document.querySelector("#video-dialog"),
   frame: document.querySelector("#video-frame"),
   dialogTitle: document.querySelector("#video-dialog-title"),
@@ -28,7 +30,8 @@ function filteredVideos() {
   const query = state.query.trim().toLocaleLowerCase("ko-KR");
   return state.videos.filter((video) => {
     const matchesCategory = state.category === "all" || video.category === state.category;
-    return matchesCategory && (!query || video.search.includes(query));
+    const matchesYear = state.year === "all" || video.year === state.year;
+    return matchesCategory && matchesYear && (!query || video.search.includes(query));
   });
 }
 
@@ -70,6 +73,7 @@ function loadShowcase() {
     title: element.dataset.title,
     category: element.dataset.category,
     cohort: element.dataset.cohort,
+    year: element.dataset.year || "",
     search: element.dataset.search,
     element,
   }));
@@ -91,6 +95,11 @@ function loadShowcase() {
     });
   }
 
+  const requestedYear = params.get("year");
+  if (requestedYear && [...elements.year.options].some((option) => option.value === requestedYear)) {
+    state.year = requestedYear;
+    elements.year.value = requestedYear;
+  }
   render();
   const requestedVideo = params.get("video");
   if (requestedVideo) openVideo(state.videos.find((video) => video.id === requestedVideo));
@@ -105,8 +114,25 @@ document.querySelectorAll("[data-filter]").forEach((button) => {
       filterButton.classList.toggle("active", active);
       filterButton.setAttribute("aria-pressed", String(active));
     });
+    syncFiltersUrl();
     render();
   });
+});
+
+function syncFiltersUrl() {
+  const url = new URL(window.location.href);
+  if (state.category === "all") url.searchParams.delete("category");
+  else url.searchParams.set("category", state.category);
+  if (state.year === "all") url.searchParams.delete("year");
+  else url.searchParams.set("year", state.year);
+  history.replaceState(null, "", url);
+}
+
+elements.year.addEventListener("change", () => {
+  state.year = elements.year.value;
+  state.limit = PAGE_SIZE;
+  syncFiltersUrl();
+  render();
 });
 
 elements.search.addEventListener("input", () => {
