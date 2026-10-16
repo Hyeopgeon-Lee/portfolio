@@ -200,9 +200,23 @@ async function enrichYoutubeMetadata(videos) {
   return enriched;
 }
 
-function cardMarkup(video) {
+function projectStageTwin(video, videos) {
+  if (!video.uploadDate?.startsWith("2026")) return null;
+  const normalize = (title) => String(title || "").normalize("NFKC").toLocaleLowerCase("ko-KR")
+    .replace(/[^a-z0-9가-힣]/g, "");
+  const key = normalize(video.title);
+  if (!key || key.length < 3) return null;
+  return videos.find(other =>
+    other.id !== video.id &&
+    other.uploadDate?.startsWith("2026") &&
+    other.category !== video.category &&
+    normalize(other.title) === key) || null;
+}
+
+function cardMarkup(video, allVideos) {
+  const twin = projectStageTwin(video, allVideos);
   const label = archiveLabel(video);
-  const cohort = video.cohort ? `${video.cohort}` : "학생 작품";
+  const cohort = video.cohort ? `${video.cohort}` : video.uploadDate?.startsWith("2026") ? (video.category === "graduate" ? "기능 추가·개선 완료" : "초기 개발 단계") : "학생 작품";
   const searchText = `${video.title} ${video.cohort ?? ""} ${truncate(video.description, 500)}`.toLocaleLowerCase("ko-KR");
   return `          <article class="video-card" data-video-id="${htmlEscape(video.id)}" data-year="${htmlEscape(video.uploadDate?.slice(0, 4) ?? "")}" data-title="${htmlEscape(video.title)}" data-category="${htmlEscape(video.category)}" data-cohort="${htmlEscape(video.cohort ?? "")}" data-search="${htmlEscape(searchText)}">
             <a class="video-card-link" href="/videos/${encodeURIComponent(video.id)}/" aria-label="${htmlEscape(video.title)} 영상 페이지 보기">
@@ -212,6 +226,7 @@ function cardMarkup(video) {
                 <h2>${htmlEscape(video.title)}</h2>
               </div>
             </a>
+            ${twin ? `<a class="video-direct-link" href="/videos/${encodeURIComponent(twin.id)}/">${video.category === "graduate" ? "↗ 초기 프로젝트도 보기" : "↗ 기능을 확장한 졸업작품 보기"}</a>` : ""}
             <a class="video-direct-link" href="https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}" target="_blank" rel="noopener noreferrer" aria-label="${htmlEscape(video.title)} YouTube 원본 영상 바로 보기">▶ YouTube 영상 바로 보기 ↗</a>
           </article>`;
 }
@@ -260,6 +275,7 @@ function videoPage(video, index, videos, titleSuffix) {
   const sameCategory = videos.filter((candidate) => candidate.category === video.category && candidate.id !== video.id);
   const relatedStart = sameCategory.length ? index % sameCategory.length : 0;
   const related = [...sameCategory.slice(relatedStart), ...sameCategory.slice(0, relatedStart)].slice(0, 3);
+  const stageTwin = projectStageTwin(video, videos);
   const graph = [
     {
       "@type": "WebPage",
@@ -369,7 +385,7 @@ function videoPage(video, index, videos, titleSuffix) {
         <div class="video-watch-frame">
           <iframe src="${privacyEmbedUrl(video.id)}" title="${htmlEscape(video.title)} 시연영상" loading="eager" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
-        <div class="video-watch-actions"><a class="hub-button hub-button-primary" href="https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}" target="_blank" rel="noopener">YouTube에서 보기 ↗</a><a class="hub-button hub-button-outline" href="/showcase/">전체 시연영상</a></div>
+        <div class="video-watch-actions"><a class="hub-button hub-button-primary" href="https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}" target="_blank" rel="noopener">YouTube에서 보기 ↗</a><a class="hub-button hub-button-outline" href="/showcase/">전체 시연영상</a>${stageTwin ? `<a class="hub-button hub-button-outline" href="/videos/${encodeURIComponent(stageTwin.id)}/">${video.category === "graduate" ? "이전 프로젝트 영상 비교 ↗" : "최종 졸업작품 영상 비교 ↗"}</a>` : ""}</div>
       </section>
 ${details ? `      <section class="video-details" aria-labelledby="video-details-title"><div class="video-details-heading"><p class="hub-kicker">PROJECT NOTES</p><h2 id="video-details-title">작품을 더 자세히<br />살펴보세요.</h2></div><div class="video-details-copy">${details}</div></section>\n` : ""}      <section class="video-related" aria-labelledby="related-title"><div class="hub-section-head compact"><div><p class="hub-kicker">MORE STUDENT WORK</p><h2 id="related-title">같은 분류의<br />다른 작품</h2></div></div><div class="video-related-grid">${relatedMarkup}</div></section>
       <section class="hub-cta"><p class="hub-kicker">FROM LEARNING TO BUILDING</p><h2>다음 작품의<br />주인공이 되어 보세요.</h2><p>AI·데이터·클라우드를 배우고 실제로 작동하는 소프트웨어로 완성합니다.</p><div class="hub-actions centered"><a class="hub-button hub-button-dark" href="https://ai.k-bigdata.kr/">학과 알아보기 ↗</a><a class="hub-button hub-button-outline" href="https://www.kopo.ac.kr/kangseo/content.do?menu=321" data-admission-link target="_blank" rel="noopener noreferrer">입학 일정 확인 ↗</a></div><p class="admission-summary"><strong data-admission="title">입학 안내</strong> · <span data-admission="countdown">공식 모집요강 확인</span><br><span data-admission="period"></span><br>면접 <span data-admission="interview">공식 안내 확인</span> · 최초 합격 발표 <span data-admission="result">공식 안내 확인</span></p><p data-admission-pending hidden></p></section>
@@ -563,7 +579,7 @@ async function main() {
     await readFile(showcasePath, "utf8"),
     "<!-- SEO_VIDEO_CARDS_START -->",
     "<!-- SEO_VIDEO_CARDS_END -->",
-    videos.map(cardMarkup).join("\n"),
+    videos.map(video => cardMarkup(video, videos)).join("\n"),
   ), videos);
   await writeFile(showcasePath, showcase, "utf8");
 
