@@ -86,9 +86,17 @@ async function main() {
     const record = old.get(entry.id);
     if (!record || !record.uploadDate?.startsWith("2026")) continue;
     knownInPlaylist.add(entry.id);
-    const newCategory = classification(entry.title, record.uploadDate, record.category);
+    const newCategory = confirmedIds.has(entry.id) ?
+      "graduate" : classification(entry.title, record.uploadDate, record.category);
     if (record.category !== newCategory) { record.category = newCategory; revised++; }
-    record.youtubeTitle = entry.title;
+    if (entry.title && /졸업\s*작품|프로젝트/i.test(entry.title)) {
+      const verifiedTitle = workTitle(entry.title);
+      if (titleKey(verifiedTitle) !== titleKey(record.title)) {
+        console.log(`Corrected stored work title for ${entry.id}: ${record.title} -> ${verifiedTitle}`);
+        record.title = verifiedTitle; revised++;
+      }
+    }
+    if (record.youtubeTitle !== entry.title) { record.youtubeTitle = entry.title; revised++; }
   }
 
   // The channel playlist supplies IDs and original titles. Metadata for new
