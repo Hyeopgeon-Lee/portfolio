@@ -28,6 +28,24 @@ const htmlEscape = (value = "") => String(value)
 const xmlEscape = (value = "") => htmlEscape(value);
 const jsonLd = (value) => JSON.stringify(value, null, 2).replaceAll("<", "\\u003c");
 const categoryLabel = (category) => category === "graduate" ? "졸업작품" : "프로젝트실습";
+const archiveLabel = (video) => video.category === "graduate" ? "졸업작품" :
+  video.uploadDate?.startsWith("2026") ? "프로젝트" : "프로젝트실습";
+
+function updateArchiveNumbers(source, videos) {
+  const graduates = videos.filter(v => v.category === "graduate").length;
+  const practice = videos.length - graduates;
+  const graduation2026 = videos.filter(v => v.category === "graduate" && v.uploadDate?.startsWith("2026")).length;
+  return source
+    .replace(/(<strong data-total-count>)\d+/, `$1${videos.length}`)
+    .replace(/(<span data-total-count>)\d+(?: VIDEOS)?/, `$1${videos.length} VIDEOS`)
+    .replace(/(<strong data-graduate-count>)\d+/, `$1${graduates}`)
+    .replace(/(<strong data-practice-count>)\d+/, `$1${practice}`)
+    .replace(/(<span data-2026-count>)\d+/, `$1${graduation2026}`)
+    .replace(/(<em>영상 )\d+(편 공개<\/em>)/, `$1${graduation2026}$2`)
+    .replace(/2026 졸업작품 \d+편/g, `2026 졸업작품 ${graduation2026}편`)
+    .replace(/"numberOfItems": \d+/, `"numberOfItems": ${videos.length}`)
+    .replace(/전체 \d+개의 시연영상을/, `전체 ${videos.length}개의 시연영상을`);
+}
 const cohortLabel = (video) => video.cohort ? `${video.cohort} · ` : "";
 const thumbnailUrl = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 const watchUrl = (id) => `${SITE_URL}/videos/${id}/`;
@@ -53,7 +71,7 @@ function durationText(seconds) {
 }
 
 function fallbackVideoDescription(video) {
-  const type = categoryLabel(video.category);
+  const type = archiveLabel(video);
   const cohort = video.cohort ? `${video.cohort} 학생의 ` : "학생이 제작한 ";
   return `${video.title} 소프트웨어 시연영상입니다. 한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어공학과 ${cohort}${type} 결과물의 기능과 구현 화면을 확인하세요.`;
 }
@@ -183,7 +201,7 @@ async function enrichYoutubeMetadata(videos) {
 }
 
 function cardMarkup(video) {
-  const label = categoryLabel(video.category);
+  const label = archiveLabel(video);
   const cohort = video.cohort ? `${video.cohort}` : "학생 작품";
   const searchText = `${video.title} ${video.cohort ?? ""} ${truncate(video.description, 500)}`.toLocaleLowerCase("ko-KR");
   return `          <article class="video-card" data-video-id="${htmlEscape(video.id)}" data-year="${htmlEscape(video.uploadDate?.slice(0, 4) ?? "")}" data-title="${htmlEscape(video.title)}" data-category="${htmlEscape(video.category)}" data-cohort="${htmlEscape(video.cohort ?? "")}" data-search="${htmlEscape(searchText)}">
@@ -201,7 +219,7 @@ function cardMarkup(video) {
 function latestCardMarkup(video) {
   return `          <a class="latest-card" href="/videos/${encodeURIComponent(video.id)}/">
             <img src="${thumbnailUrl(video.id)}" alt="${htmlEscape(video.title)} 영상 미리보기" loading="lazy" width="480" height="360" />
-            <div class="latest-card-copy"><small>${categoryLabel(video.category)}${video.cohort ? ` · ${htmlEscape(video.cohort)}` : ""}</small><h3>${htmlEscape(video.title)}</h3></div>
+            <div class="latest-card-copy"><small>${archiveLabel(video)}${video.cohort ? ` · ${htmlEscape(video.cohort)}` : ""}</small><h3>${htmlEscape(video.title)}</h3></div>
           </a>`;
 }
 
@@ -541,12 +559,12 @@ async function main() {
   if (REFRESH_YOUTUBE) videos = await enrichYoutubeMetadata(videos);
 
   const showcasePath = path.join(ROOT, "showcase", "index.html");
-  const showcase = replaceGeneratedBlock(
+  const showcase = updateArchiveNumbers(replaceGeneratedBlock(
     await readFile(showcasePath, "utf8"),
     "<!-- SEO_VIDEO_CARDS_START -->",
     "<!-- SEO_VIDEO_CARDS_END -->",
     videos.map(cardMarkup).join("\n"),
-  );
+  ), videos);
   await writeFile(showcasePath, showcase, "utf8");
 
   const graduatePath = path.join(ROOT, "graduate", "index.html");
@@ -559,7 +577,7 @@ async function main() {
   await writeFile(graduatePath, graduate, "utf8");
 
   const homePath = path.join(ROOT, "index.html");
-  const home = replaceGeneratedBlock(
+  const home = updateArchiveNumbers(replaceGeneratedBlock(
     replaceGeneratedBlock(
       await readFile(homePath, "utf8"),
       "<!-- SEO_LATEST_VIDEOS_START -->",
@@ -570,7 +588,7 @@ async function main() {
     "<!-- SEO_2026_VIDEOS_END -->",
     videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"))
       .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
-  );
+  ), videos);
   await writeFile(homePath, home, "utf8");
 
   const titleSuffixes = uniqueTitleSuffixes(videos);
