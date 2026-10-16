@@ -12,6 +12,9 @@ const DATA = path.join(ROOT, "data/showcase-videos.json");
 const CHANNEL = "https://www.youtube.com/@kopo-poly/videos";
 const JULY = "2026-07-01";
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
+const CONFIRMED_LINKS = path.join(ROOT, "data/2026-confirmed-video-links.json");
+const EXPECTED_GRADUATION_WORKS = 16;
+const titleKey = title => String(title || "").normalize("NFKC").toLocaleLowerCase("ko-KR").replace(/[^a-z0-9가-힣]/g, "");
 
 async function youtube(args, timeout = 180000) {
   const { stdout } = await run("yt-dlp", [
@@ -35,7 +38,12 @@ function classification(title, date, fallback = "") {
   return fallback;
 }
 function workTitle(source) {
-  const cleaned = String(source || "")
+  const original = String(source || "").trim();
+  // School prefixes often contain hyphens. The actual work title is the
+  // portion after the LAST explicit work-type separator.
+  const match = [...original.matchAll(/(?:졸업\s*작품|프로젝트(?:\s*실습)?)\s*[-–—:|]\s*/gi)].at(-1);
+  const sourceTitle = match ? original.slice(match.index + match[0].length) : original;
+  const cleaned = String(sourceTitle || "")
     .replace(/(?:^|[|\[\(\-–—:]\s*)?(?:2026\s*년?\s*)?졸업\s*작품(?:\s*시연)?\s*/gi, " ")
     .replace(/(?:^|[|\[\(\-–—:]\s*)?(?:2026\s*년?\s*)?프로젝트(?:\s*실습)?\s*/gi, " ")
     .replace(/\b2026\s*년?\b/g, " ")
@@ -66,6 +74,11 @@ async function main() {
   }
 
   const inventory = JSON.parse(await readFile(DATA, "utf8"));
+  const confirmed = JSON.parse(await readFile(CONFIRMED_LINKS, "utf8")).videos;
+  const confirmedIds = new Set(confirmed.map(item => item.id));
+  if (confirmedIds.size !== confirmed.length || confirmed.some(item => !VIDEO_ID.test(item.id))) {
+    throw new Error("Invalid or duplicated department-confirmed YouTube IDs");
+  }
   const old = new Map(inventory.map(video => [video.id, video]));
   const blocked = new Set(JSON.parse(await readFile(path.join(ROOT, "data/unavailable-videos.json"), "utf8")).map(x => x.id));
   let added = 0, revised = 0, unavailable = 0;
@@ -94,6 +107,14 @@ async function main() {
   const candidates = relevantEntries
     .filter(entry => !old.has(entry.id) && !blocked.has(entry.id))
     .filter(entry => /졸업\s*작품|프로젝트/i.test(entry.title || ""));
+  // Every department-supplied URL must be attempted even if the channel
+  // listing omits it, truncates its title, or falls outside its first 90.
+  for (const item of confirmed) {
+    if (!old.has(item.id) && !blocked.has(item.id) &&
+        !candidates.some(entry => entry.id === item.id)) {
+      candidates.unshift({id:item.id, title:""});
+    }
+  }
   let cursor = 0;
   async function worker() {
     while (cursor < candidates.length) {
@@ -104,9 +125,14 @@ async function main() {
           `https://www.youtube.com/watch?v=${entry.id}`,
         ], 45000);
         const date = toDate(detail.upload_date || detail.release_date);
-        const label = classification(entry.title || detail.title, date);
-        if (!date.startsWith("2026") || !label || !(Number(detail.duration) > 0)) continue;
-        const originalTitle = entry.title || detail.title;
+        const originalTitle = detail.title || entry.title;
+        const isConfirmed = confirmedIds.has(entry.id);
+        // Classification and identity are grounded in the original video.
+        const label = isConfirmed ? "graduate" : classification(originalTitle, date);
+        if (!date.startsWith("2026") || !label || !(Number(detail.duration) > 0) || !originalTitle) {
+          console.warn(`Metadata incomplete for ${entry.id}; retaining exact YouTube fallback link.`);
+          continue;
+        }
         const video = {
           id: entry.id,
           title: workTitle(originalTitle),
@@ -118,7 +144,25 @@ async function main() {
             `${workTitle(originalTitle)}의 2026년 소프트웨어 시연영상입니다. 한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어공학과에서 개발한 결과물입니다.`,
           youtubeTitle: originalTitle,
         };
-        if (!old.has(entry.id)) { old.set(entry.id, video); added++; }
+        if (!old.has(entry.id)) {
+          // Same work with an incorrect old final-video ID: preserve the
+          // initial upload separately as a project when it predates July.
+          // Never overwrite a different work merely because its label is close.
+          if (isConfirmed) {
+            const matching = [...old.values()].filter(prev =>
+              prev.category === "graduate" && prev.uploadDate?.startsWith("2026") &&
+              titleKey(prev.title) === titleKey(video.title) && prev.id !== video.id);
+            for (const prev of matching) {
+              if (prev.uploadDate.slice(0,10) < "2026-07-01") {
+                prev.category = "practice"; revised++;
+                console.log(`Linked earlier project ${prev.id} to final work ${video.id}`);
+              } else {
+                console.warn(`Possible incorrect final-work link: ${prev.id} and ${video.id} both titled ${video.title}; manual review needed.`);
+              }
+            }
+          }
+          old.set(entry.id, video); added++;
+        }
       } catch (error) {
         unavailable++;
         console.warn(`Could not validate new YouTube video ${entry.id}: ${error.message}`);
@@ -146,7 +190,7 @@ async function main() {
     await writeFile(DATA, JSON.stringify(sorted, null, 2) + "\n", "utf8");
   }
   console.log(`YouTube sync: ${entries.length} channel entries checked; ${added} added, ${revised} reclassified, ${unavailable} unverified.`);
-  console.log(`2026 graduation videos currently verified in inventory: ${finals.length}; expected 16 after all final uploads are discovered.`);
-  if (finals.length !== 16) console.warn("Graduation-video count differs from the 16 reported by the department: review upstream titles/channel access.");
+  console.log(`2026 graduation videos currently verified in inventory: ${finals.length}; expected ${EXPECTED_GRADUATION_WORKS} after all final uploads are discovered.`);
+  if (finals.length !== EXPECTED_GRADUATION_WORKS) console.warn("Graduation-video count differs from the 16 reported by the department: review upstream titles/channel access.");
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
