@@ -7,6 +7,7 @@ const SITE_URL = "https://portfolio.k-bigdata.kr";
 const DATA_PATH = path.join(ROOT, "data", "showcase-videos.json");
 const PROJECTS_PATH = path.join(ROOT, "data", "graduate-projects.json");
 const UNAVAILABLE_VIDEOS_PATH = path.join(ROOT, "data", "unavailable-videos.json");
+const CONFIRMED_LINKS_PATH = path.join(ROOT, "data", "2026-confirmed-video-links.json");
 const todayParts = Object.fromEntries(
   new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
@@ -211,6 +212,14 @@ function projectStageTwin(video, videos) {
     other.uploadDate?.startsWith("2026") &&
     other.category !== video.category &&
     normalize(other.title) === key) || null;
+}
+
+function pendingYoutubeCard(item) {
+  const id = htmlEscape(item.id);
+  return `          <a class="latest-card" data-pending-id="${id}" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" aria-label="2026 졸업작품 유튜브 원본 ${id} 보기">
+            <img src="${thumbnailUrl(item.id)}" alt="유튜브 영상 ${id} 미리보기" loading="lazy" width="480" height="360" />
+            <div class="latest-card-copy"><small>2026 졸업작품 · 원본 링크</small><h3>영상 ID: ${id}</h3><p>작품명 확인 중 · YouTube에서 보기 ↗</p></div>
+          </a>`;
 }
 
 function cardMarkup(video, allVideos) {
@@ -558,6 +567,7 @@ function videoSitemapXml(videos, titleSuffixes) {
 async function main() {
   let videos = JSON.parse(await readFile(DATA_PATH, "utf8"));
   const unavailableVideos = JSON.parse(await readFile(UNAVAILABLE_VIDEOS_PATH, "utf8"));
+  const confirmedLinks = JSON.parse(await readFile(CONFIRMED_LINKS_PATH, "utf8")).videos;
   if (!Array.isArray(unavailableVideos)) throw new Error("Invalid unavailable video list");
   const unavailableIds = new Set(unavailableVideos.map((entry) => entry.id));
   videos = videos.filter((video) => !unavailableIds.has(video.id));
@@ -573,6 +583,8 @@ async function main() {
     if (!project.title || !project.summary || !project.images?.length) throw new Error(`Incomplete project record: ${project.id}`);
   });
   if (REFRESH_YOUTUBE) videos = await enrichYoutubeMetadata(videos);
+  const publishedIds = new Set(videos.map(video => video.id));
+  const pendingLinks = confirmedLinks.filter(item => !publishedIds.has(item.id));
 
   const showcasePath = path.join(ROOT, "showcase", "index.html");
   const showcase = updateArchiveNumbers(replaceGeneratedBlock(
@@ -581,7 +593,11 @@ async function main() {
     "<!-- SEO_VIDEO_CARDS_END -->",
     videos.map(video => cardMarkup(video, videos)).join("\n"),
   ), videos);
-  await writeFile(showcasePath, showcase, "utf8");
+  const showcaseWithPending = replaceGeneratedBlock(
+    showcase, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
+    pendingLinks.map(pendingYoutubeCard).join("\n"),
+  );
+  await writeFile(showcasePath, showcaseWithPending, "utf8");
 
   const graduatePath = path.join(ROOT, "graduate", "index.html");
   const graduate = replaceGeneratedBlock(
@@ -605,7 +621,11 @@ async function main() {
     videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"))
       .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
   ), videos);
-  await writeFile(homePath, home, "utf8");
+  const homeWithPending = replaceGeneratedBlock(
+    home, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
+    pendingLinks.map(pendingYoutubeCard).join("\n"),
+  );
+  await writeFile(homePath, homeWithPending, "utf8");
 
   const titleSuffixes = uniqueTitleSuffixes(videos);
   await mapLimit(videos, 16, async (video, index) => {
