@@ -13,18 +13,6 @@
     </video:video>
   </url>
   <url>
-    <loc>https://portfolio.k-bigdata.kr/videos/BkbJVkaNyLo/</loc>
-    <video:video>
-      <video:thumbnail_loc>https://i.ytimg.com/vi/BkbJVkaNyLo/hqdefault.jpg</video:thumbnail_loc>
-      <video:title>Smart Log Sync</video:title>
-      <video:description>Smart Log Sync · 졸업작품 시연영상. 작품 설명 원본 메모를 작성하면 AI가 자동으로 정형화된 업무일지로 변환하고, 일정 관리부터 보고서 자동 생성까지 업무 전 과정을 통합 관리하는 플랫폼입니다. Google Gemini API를 활용하여 구어체 메모를 공식 업무일지 형식으로 정제하고, 등록된 일정과 업무일지 데이터를 분석하여 일간·주간·월간 보고서를 생성합니다. ▸ 대시보드 — 오늘의 일정·최근 업무일지·실시간 날씨 한눈에 확인 ▸ AI 업무일지 — 원본 메모 입력 → Gemini AI가 정형화된 업무일지로 자동 변환 ▸ 스마트 일정 — 월간 캘린더 / 주간·일간 계획표 / 목록 / 반복 업무 설정 ▸ 지능형 리포트 — 일정+업무일지 데이터 기반 AI 보고서 자동 생성 및 문서 보관 ▸ 알림 센터 — 반복업무 일정 마감 1시간·30분전 자동 알림 (실시간 체크) ▸ 회원 관리 — 회원가입(이메일 인증) / 로그인 / 아이디·비밀번호 찾기 / 마이페이지 적용 기술 프레임워크 : Spring Boot 3.x , Thymeleaf, Bootstrap 5.3 사용 언어 : Java 17, JavaScript, CSS 데이터베이스 : MariaDB — 회원 정보, 일정, 업무일지, 보고서, 알림 등 관계형 데이터 MongoDB — (연결 설정 구성됨) 클라우드 : Amazon Web Services (EC2) 통신 프로토콜 : HTTPS, SMTP 웹 서버/배포 : Nginx (리버스 프록시) 인증 / 보안 : Spring Security, BCrypt 비밀번호 암호화 RememberMe (Persistent Token — DB 기반 자동 로그인) 로그인 5회 실패 시 계정 잠금 / 비밀번호 변경 시 기존 세션 강제 만료 API 활용 : OpenAI API, Safebooru API 기타 : JPA / Hibernate / Lombok / RestClient / @Scheduled (알림 자동 발송)</video:description>
-      <video:player_loc allow_embed="yes">https://www.youtube.com/embed/BkbJVkaNyLo</video:player_loc>
-      <video:publication_date>2026-07-07T23:43:49-07:00</video:publication_date>
-      <video:family_friendly>yes</video:family_friendly>
-      <video:uploader info="https://ai.k-bigdata.kr/">한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어공학과</video:uploader>
-    </video:video>
-  </url>
-  <url>
     <loc>https://portfolio.k-bigdata.kr/videos/64mZfwmKD80/</loc>
     <video:video>
       <video:thumbnail_loc>https://i.ytimg.com/vi/64mZfwmKD80/hqdefault.jpg</video:thumbnail_loc>
