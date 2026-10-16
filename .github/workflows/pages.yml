@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '20 22 * * *' # Every day 07:20 Asia/Seoul
 
 permissions:
   contents: read
@@ -23,6 +25,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install YouTube metadata client
+        run: python -m pip install --disable-pip-version-check yt-dlp
+      - name: Synchronize official channel and classify 2026 videos
+        run: node scripts/sync-youtube-2026.mjs
       - name: Generate search pages and sitemaps
         run: node scripts/generate-seo.mjs
       - name: Verify search metadata
@@ -47,7 +53,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Generate current sitemap
-        run: node scripts/generate-seo.mjs
+        run: |
+          python -m pip install --disable-pip-version-check yt-dlp
+          node scripts/sync-youtube-2026.mjs
+          node scripts/generate-seo.mjs
       - name: Wait for the IndexNow key to be published
         shell: bash
         run: |
