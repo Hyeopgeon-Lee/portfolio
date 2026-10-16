@@ -1,0 +1,23 @@
+{
+  "description": "2026 final graduation videos linked directly by the department. Use the exact YouTube IDs; do not invent titles, dates, or durations.",
+  "videos": [
+    {
+      "id": "nZcWGA2R8uw",
+      "sourceUrl": "https://youtu.be/nZcWGA2R8uw",
+      "type": "graduate",
+      "year": 2026
+    },
+    {
+      "id": "og11klduMV0",
+      "sourceUrl": "https://youtu.be/og11klduMV0",
+      "type": "graduate",
+      "year": 2026
+    },
+    {
+      "id": "shpXXmx3gGc",
+      "sourceUrl": "https://youtu.be/shpXXmx3gGc",
+      "type": "graduate",
+      "year": 2026
+    }
+  ]
+}
