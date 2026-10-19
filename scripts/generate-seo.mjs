@@ -36,12 +36,15 @@ function updateArchiveNumbers(source, videos) {
   const graduates = videos.filter(v => v.category === "graduate").length;
   const practice = videos.length - graduates;
   const graduation2026 = videos.filter(v => v.category === "graduate" && v.uploadDate?.startsWith("2026")).length;
+  const projects2026 = videos.filter(v => v.category === "practice" && v.uploadDate?.startsWith("2026")).length;
   return source
     .replace(/(<strong data-total-count>)\d+/, `$1${videos.length}`)
     .replace(/(<span data-total-count>)\d+(?: VIDEOS)?/, `$1${videos.length} VIDEOS`)
     .replace(/(<strong data-graduate-count>)\d+/, `$1${graduates}`)
     .replace(/(<strong data-practice-count>)\d+/, `$1${practice}`)
     .replace(/(<span data-2026-count>)\d+/g, `$1${graduation2026}`)
+    .replace(/(<(?:span|strong) data-2026-graduate-count>)\d+/g, `$1${graduation2026}`)
+    .replace(/(<(?:span|strong) data-2026-practice-count>)\d+/g, `$1${projects2026}`)
     .replace(/(<em>영상 )\d+(편 공개<\/em>)/, `$1${graduation2026}$2`)
     .replace(/2026 졸업작품 \d+편/g, `2026 졸업작품 ${graduation2026}편`)
     .replace(/"numberOfItems": \d+/, (value) => source.includes('id="video-grid"') ? `"numberOfItems": ${videos.length}` : value)
@@ -597,7 +600,7 @@ async function main() {
     showcase, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
     pendingLinks.map(pendingYoutubeCard).join("\n"),
   );
-  await writeFile(showcasePath, showcaseWithPending, "utf8");
+  await writeFile(showcasePath, showcaseWithPending.replaceAll("20261017-verified-3links", "20261019-split-2026"), "utf8");
 
   const graduatePath = path.join(ROOT, "graduate", "index.html");
   const graduate = replaceGeneratedBlock(
@@ -621,8 +624,13 @@ async function main() {
     videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"))
       .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
   ), videos);
+  const homeWithProjects = replaceGeneratedBlock(
+    home, "<!-- SEO_2026_PRACTICE_START -->", "<!-- SEO_2026_PRACTICE_END -->",
+    videos.filter((video) => video.category === "practice" && video.uploadDate?.startsWith("2026"))
+      .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>프로젝트</small>", "<small>2026 프로젝트</small>")).join("\n"),
+  );
   const homeWithPending = replaceGeneratedBlock(
-    home, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
+    homeWithProjects, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
     pendingLinks.map(pendingYoutubeCard).join("\n"),
   );
   await writeFile(homePath, homeWithPending, "utf8");

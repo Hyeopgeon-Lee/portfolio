@@ -62,7 +62,7 @@ function safeDescription(value) {
 async function main() {
   let playlist = {entries: []};
   try {
-    playlist = await youtube(["--flat-playlist", "--dump-single-json", "--playlist-end", "90", CHANNEL]);
+    playlist = await youtube(["--flat-playlist", "--dump-single-json", "--playlist-end", "180", CHANNEL]);
   } catch (error) {
     console.warn("YouTube channel listing unavailable; trying the three direct faculty-provided video links:", error.message);
   }
@@ -86,8 +86,8 @@ async function main() {
     const record = old.get(entry.id);
     if (!record || !record.uploadDate?.startsWith("2026")) continue;
     knownInPlaylist.add(entry.id);
-    const newCategory = confirmedIds.has(entry.id) ?
-      "graduate" : classification(entry.title, record.uploadDate, record.category);
+    const newCategory = classification(entry.title, record.uploadDate,
+      confirmedIds.has(entry.id) ? "graduate" : record.category);
     if (record.category !== newCategory) { record.category = newCategory; revised++; }
     if (entry.title && /졸업\s*작품|프로젝트/i.test(entry.title)) {
       const verifiedTitle = workTitle(entry.title);
@@ -131,7 +131,7 @@ async function main() {
         const originalTitle = detail.title || entry.title;
         const isConfirmed = confirmedIds.has(entry.id);
         // Classification and identity are grounded in the original video.
-        const label = isConfirmed ? "graduate" : classification(originalTitle, date);
+        const label = classification(originalTitle, date, isConfirmed ? "graduate" : "");
         if (!date.startsWith("2026") || !label || !(Number(detail.duration) > 0) || !originalTitle) {
           console.warn(`Metadata incomplete for ${entry.id}; retaining exact YouTube fallback link.`);
           continue;

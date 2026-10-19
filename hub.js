@@ -21,6 +21,33 @@ async function loadHub() {
     document.querySelectorAll("[data-2026-count]").forEach((element) => {
       element.textContent = yearVideos.length.toLocaleString("ko-KR");
     });
+    const projectVideos2026 = videos.filter((video) => video.category === "practice" && video.uploadDate?.startsWith("2026"));
+    document.querySelectorAll("[data-2026-practice-count]").forEach((element) => {
+      element.textContent = projectVideos2026.length.toLocaleString("ko-KR");
+    });
+    const projectGrid = document.querySelector("#year-project-grid");
+    if (projectGrid) {
+      projectGrid.replaceChildren(...projectVideos2026.slice(0, 6).map((video) => {
+        const link = document.createElement("a");
+        link.className = "latest-card";
+        link.href = `/videos/${encodeURIComponent(video.id)}/`;
+        const image = document.createElement("img");
+        image.src = thumbnailUrl(video.id);
+        image.alt = `${video.title} 프로젝트 영상 미리보기`;
+        image.loading = "lazy";
+        image.width = 480;
+        image.height = 360;
+        const copy = document.createElement("div");
+        copy.className = "latest-card-copy";
+        const type = document.createElement("small");
+        type.textContent = "2026 프로젝트";
+        const title = document.createElement("h3");
+        title.textContent = video.title;
+        copy.append(type, title);
+        link.append(image, copy);
+        return link;
+      }));
+    }
     const yearGrid = document.querySelector("#year-feature-grid");
     if (yearGrid && yearVideos.length) {
       yearGrid.replaceChildren(...yearVideos.slice(0, 6).map((video) => {

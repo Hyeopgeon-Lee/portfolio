@@ -42,7 +42,12 @@ function render() {
     video.element.hidden = !visible.has(video);
   });
 
-  elements.result.textContent = `${matches.length.toLocaleString("ko-KR")}개의 영상 중 ${visible.size.toLocaleString("ko-KR")}개를 보고 있습니다.`;
+  const categoryName = state.category === "graduate" ? "졸업작품" :
+    state.category === "practice" ? (state.year === "2026" ? "프로젝트" : "프로젝트실습") : "시연영상";
+  const selectedTitle = `${state.year === "all" ? "전체" : state.year + "년"} ${categoryName}`;
+  const heading = document.querySelector("#showcase-selection");
+  if (heading) heading.textContent = selectedTitle;
+  elements.result.textContent = `${matches.length.toLocaleString("ko-KR")}개 중 ${visible.size.toLocaleString("ko-KR")}개를 보고 있습니다.`;
   elements.empty.classList.toggle("visible", matches.length === 0);
   elements.more.hidden = visible.size >= matches.length;
   const pending = document.querySelector("#pending-2026-videos");
@@ -87,6 +92,23 @@ function loadShowcase() {
     element,
   }));
 
+  const graduated2026 = state.videos.filter((video) => video.year === "2026" && video.category === "graduate").length;
+  const projects2026 = state.videos.filter((video) => video.year === "2026" && video.category === "practice").length;
+  const controls = document.querySelector(".showcase-controls");
+  if (controls) {
+    const quick = document.createElement("div");
+    quick.className = "showcase-2026-paths";
+    quick.setAttribute("aria-label", "2026년 졸업작품과 프로젝트");
+    quick.innerHTML = '<a class="showcase-2026-path" href="/showcase/?category=graduate&amp;year=2026"><small>2026 FINAL WORKS</small><span>2026년 졸업작품 <strong data-2026-graduate-count></strong>편</span><p>기능을 확장·개선한 최종 결과물</p></a><a class="showcase-2026-path" href="/showcase/?category=practice&amp;year=2026"><small>2026 DEVELOPMENT</small><span>2026년 프로젝트 <strong data-2026-practice-count></strong>편</span><p>초기 개발·시연 단계의 프로젝트</p></a>';
+    controls.before(quick);
+    const heading = document.createElement("h2");
+    heading.className = "showcase-selection";
+    heading.id = "showcase-selection";
+    heading.textContent = "전체 시연영상";
+    controls.before(heading);
+  }
+  document.querySelectorAll("[data-2026-graduate-count]").forEach((el) => { el.textContent = graduated2026.toLocaleString("ko-KR"); });
+  document.querySelectorAll("[data-2026-practice-count]").forEach((el) => { el.textContent = projects2026.toLocaleString("ko-KR"); });
   const graduateCount = state.videos.filter((video) => video.category === "graduate").length;
   const practiceCount = state.videos.filter((video) => video.category === "practice").length;
   document.querySelectorAll("[data-total-count]").forEach((element) => { element.textContent = state.videos.length.toLocaleString("ko-KR"); });
