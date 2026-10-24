@@ -37,6 +37,8 @@ jobs:
         run: node scripts/sync-youtube-2026.mjs
       - name: Generate search pages and sitemaps
         run: node scripts/generate-seo.mjs
+      - name: Verify 2026 graduation display priority
+        run: node tests/2026-graduation-order.test.mjs
       - name: Verify search metadata
         run: node scripts/check-seo.mjs
       - name: Preserve validated YouTube inventory in repository
