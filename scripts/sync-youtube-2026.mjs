@@ -198,15 +198,33 @@ async function main() {
   }
   await Promise.all(Array.from({ length: Math.min(3, candidates.length) }, worker));
 
-  // Prior early-2026 videos had erroneously been treated as final works.
-  // Pre-July practice demos remain in the archive, not in graduation counts.
-  for (const video of old.values()) {
-    if (video.uploadDate?.startsWith("2026") &&
-        video.uploadDate.slice(0, 10) < JULY &&
-        video.category === "graduate" &&
-        !/졸업\s*작품/.test(video.youtubeTitle || "")) {
-      video.category = "practice";
-      revised++;
+  // 2026 stage classification: initial recordings before July are practice.
+  // Earlier recordings for the SAME work are also practice if a later
+  // verified final-stage graduation upload exists, even when an old title
+  // still contains "졸업작품" (e.g. July DeepScan and MauM drafts).
+  // Preserve BOTH YouTube URLs, never overwrite a prior video ID.
+  const year2026 = [...old.values()].filter(v => v.uploadDate?.startsWith("2026"));
+  const byWork = new Map();
+  for (const video of year2026) {
+    const key = titleKey(video.title);
+    if (!byWork.has(key)) byWork.set(key, []);
+    byWork.get(key).push(video);
+  }
+  for (const video of year2026) {
+    if (video.uploadDate.slice(0, 10) < JULY && video.category !== "practice") {
+      video.category = "practice"; revised++;
+      console.log(`Classified 2026 initial project: ${video.title} (${video.id})`);
+    }
+  }
+  for (const group of byWork.values()) {
+    if (group.length < 2) continue;
+    group.sort((a,b) => (b.uploadDate || "").localeCompare(a.uploadDate || ""));
+    if (group[0].category !== "graduate") continue;
+    for (const earlier of group.slice(1)) {
+      if (earlier.category !== "practice") {
+        earlier.category = "practice"; revised++;
+        console.log(`Linked initial project ${earlier.id} to latest graduation work ${group[0].id}: ${earlier.title}`);
+      }
     }
   }
   const sorted = [...old.values()].sort((a,b) =>
