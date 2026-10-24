@@ -54,12 +54,31 @@ function workTitle(source) {
   return (cleaned || String(source).trim()).slice(0, 100);
 }
 function safeDescription(value) {
-  const lines = String(value || "").replace(/\r/g, "").split("\n")
-    .filter(line => !/^\s*(?:개발자|제작자|작성자|이름|성명|연락처|전화|이메일|e-mail|github|깃허브|블로그|홈페이지)\s*[:：]/i.test(line))
-    .map(line => line.replace(/https?:\/\/\S+|www\.\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, "").trim())
-    .filter(line => !/^\s*(?:#\S+\s*)+$/.test(line));
-  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 6000);
+  const redacted = [];
+  let skipNext = false;
+  for (const original of String(value || "").replace(/\r/g, "").split("\n")) {
+    const line = original.trim();
+    if (skipNext) {
+      if (!line) continue;
+      skipNext = false;
+      continue;
+    }
+    if (/^(?:[-–—*•●▸❍○◦]\s*)?(?:개발자|제작자|작성자|이름|성명|연락처|전화|휴대전화|이메일|e-mail|github|깃허브|블로그|홈페이지)\s*[:：]?\s*/i.test(line)) {
+      const hasInlineValue = /[:：]\s*\S/.test(line);
+      skipNext = !hasInlineValue;
+      continue;
+    }
+    if (/^(?:[-–—*•●▸❍○◦]\s*)?(?:제\s*목|title)\s*[:：]/i.test(line)) continue;
+    if (/^(?:[-–—*•●▸❍○◦]\s*)?(?:설\s*명|적용\s*기술)\s*[:：]?\s*$/i.test(line)) {
+      redacted.push(/적용/.test(line) ? "적용 기술" : "작품 설명");
+      continue;
+    }
+    const text = line.replace(/https?:\/\/\S+|www\.\S+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, "").trim();
+    if (!/^#\S+(?:\s+#\S+)*$/.test(text)) redacted.push(text);
+  }
+  return redacted.join("\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 6000);
 }
+
 async function main() {
   let playlist = {entries: []};
   try {
