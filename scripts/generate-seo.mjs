@@ -9,6 +9,7 @@ const PROJECTS_PATH = path.join(ROOT, "data", "graduate-projects.json");
 const UNAVAILABLE_VIDEOS_PATH = path.join(ROOT, "data", "unavailable-videos.json");
 const CONFIRMED_LINKS_PATH = path.join(ROOT, "data", "2026-confirmed-video-links.json");
 const GRADUATION_ORDER_PATH = path.join(ROOT, "data", "2026-graduation-display-order.json");
+const PRACTICE_ORDER_PATH = path.join(ROOT, "data", "2026-practice-display-order.json");
 const todayParts = Object.fromEntries(
   new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
@@ -587,29 +588,35 @@ async function main() {
     if (!project.title || !project.summary || !project.images?.length) throw new Error(`Incomplete project record: ${project.id}`);
   });
   if (REFRESH_YOUTUBE) videos = await enrichYoutubeMetadata(videos);
-  // Keep a curator-defined presentation order even when nightly YouTube
-  // synchronization updates the underlying inventory in upload-date order.
-  // Preserve the placement/order of all non-2026-graduation videos.
-  const curatedOrder = JSON.parse(await readFile(GRADUATION_ORDER_PATH, "utf8")).videoIds;
-  if (!Array.isArray(curatedOrder) || !curatedOrder.length ||
-      new Set(curatedOrder).size !== curatedOrder.length) {
-    throw new Error("2026 graduation display priority is missing or duplicated");
-  }
+  // Curated stages keep separate YouTube links: initial practice recordings
+  // are never replaced with final graduation videos. Both stages retain their
+  // stable video-specific detail pages through nightly synchronization.
   const is2026Graduation = v => v.category === "graduate" && v.uploadDate?.startsWith("2026");
-  const graduation2026 = videos.filter(is2026Graduation);
-  const byId = new Map(graduation2026.map(v => [v.id, v]));
-  for (const id of curatedOrder) {
-    if (!/^[A-Za-z0-9_-]{11}$/.test(id) || !byId.has(id))
-      throw new Error(`Curated 2026 graduation video missing: ${id}`);
-  }
-  const pinnedIds = new Set(curatedOrder);
-  const orderedGraduation2026 = [
-    ...curatedOrder.map(id => byId.get(id)),
-    ...graduation2026.filter(v => !pinnedIds.has(v.id)),
-  ];
-  let graduationSlot = 0;
+  const is2026Practice = v => v.category === "practice" && v.uploadDate?.startsWith("2026");
+  const applyCuratedOrder = async (file, stageVideos, label) => {
+    const priorityIds = JSON.parse(await readFile(file, "utf8")).videoIds;
+    if (!Array.isArray(priorityIds) || !priorityIds.length ||
+        new Set(priorityIds).size !== priorityIds.length) {
+      throw new Error(`2026 ${label} display priority is missing or duplicated`);
+    }
+    const byId = new Map(stageVideos.map(v => [v.id, v]));
+    for (const id of priorityIds) {
+      if (!/^[A-Za-z0-9_-]{11}$/.test(id) || !byId.has(id))
+        throw new Error(`Curated 2026 ${label} video missing: ${id}`);
+    }
+    const pinnedIds = new Set(priorityIds);
+    return [...priorityIds.map(id => byId.get(id)), ...stageVideos.filter(v => !pinnedIds.has(v.id))];
+  };
+  const orderedGraduation2026 = await applyCuratedOrder(
+    GRADUATION_ORDER_PATH, videos.filter(is2026Graduation), "graduation"
+  );
+  const orderedPractice2026 = await applyCuratedOrder(
+    PRACTICE_ORDER_PATH, videos.filter(is2026Practice), "practice"
+  );
+  let graduationSlot = 0, practiceSlot = 0;
   const orderedShowcaseVideos = videos.map(v =>
-    is2026Graduation(v) ? orderedGraduation2026[graduationSlot++] : v
+    is2026Graduation(v) ? orderedGraduation2026[graduationSlot++] :
+    is2026Practice(v) ? orderedPractice2026[practiceSlot++] : v
   );
   const publishedIds = new Set(videos.map(video => video.id));
   const pendingLinks = confirmedLinks.filter(item => !publishedIds.has(item.id));
@@ -659,8 +666,8 @@ async function main() {
   ), videos);
   const homeWithProjects = replaceGeneratedBlock(
     home, "<!-- SEO_2026_PRACTICE_START -->", "<!-- SEO_2026_PRACTICE_END -->",
-    videos.filter((video) => video.category === "practice" && video.uploadDate?.startsWith("2026"))
-      .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>프로젝트</small>", "<small>2026 프로젝트</small>")).join("\n"),
+    orderedPractice2026.slice(0, 6)
+      .map((video) => latestCardMarkup(video).replace("<small>프로젝트</small>", "<small>2026 프로젝트</small>")).join("\n"),
   );
   const homeWithPending = replaceGeneratedBlock(
     homeWithProjects, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
