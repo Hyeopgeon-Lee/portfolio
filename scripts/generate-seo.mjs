@@ -588,6 +588,14 @@ async function main() {
   if (REFRESH_YOUTUBE) videos = await enrichYoutubeMetadata(videos);
   const publishedIds = new Set(videos.map(video => video.id));
   const pendingLinks = confirmedLinks.filter(item => !publishedIds.has(item.id));
+  // Hide the former "link-only" placeholder once all confirmed video IDs
+  // have been resolved to real works; restore it for future unresolved links.
+  const pendingVisibility = markup => markup.replace(
+    /(<(?:section|div) id="pending-2026-videos")([^>]*)(>)/,
+    (_match, open, attrs, close) => open +
+      attrs.replace(/\s+hidden(?:="hidden")?/g, "") +
+      (pendingLinks.length ? "" : " hidden") + close
+  );
 
   const showcasePath = path.join(ROOT, "showcase", "index.html");
   const showcase = updateArchiveNumbers(replaceGeneratedBlock(
@@ -600,7 +608,7 @@ async function main() {
     showcase, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
     pendingLinks.map(pendingYoutubeCard).join("\n"),
   );
-  await writeFile(showcasePath, showcaseWithPending.replaceAll("20261017-verified-3links", "20261019-split-2026"), "utf8");
+  await writeFile(showcasePath, pendingVisibility(showcaseWithPending).replaceAll("20261017-verified-3links", "20261019-split-2026"), "utf8");
 
   const graduatePath = path.join(ROOT, "graduate", "index.html");
   const graduate = replaceGeneratedBlock(
@@ -633,7 +641,7 @@ async function main() {
     homeWithProjects, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
     pendingLinks.map(pendingYoutubeCard).join("\n"),
   );
-  await writeFile(homePath, homeWithPending, "utf8");
+  await writeFile(homePath, pendingVisibility(homeWithPending), "utf8");
 
   const titleSuffixes = uniqueTitleSuffixes(videos);
   await mapLimit(videos, 16, async (video, index) => {
