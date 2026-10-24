@@ -29,6 +29,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Validate official-feed parser
+        run: node tests/youtube-feed.test.mjs
       - name: Install YouTube metadata client
         run: python -m pip install --disable-pip-version-check "yt-dlp[default]"
       - name: Synchronize official channel and classify 2026 videos
