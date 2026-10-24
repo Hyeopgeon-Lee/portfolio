@@ -5,6 +5,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
+import { readYoutubeChannelFeed } from "./youtube-feed.mjs";
 
 const run = promisify(execFile);
 const ROOT = path.resolve(import.meta.dirname, "..");
@@ -67,6 +68,11 @@ async function main() {
     console.warn("YouTube channel listing unavailable; trying the three direct faculty-provided video links:", error.message);
   }
   const entries = (playlist.entries || []).filter(entry => VIDEO_ID.test(entry?.id));
+  const channelId = playlist.channel_id || playlist.channelId ||
+    entries.find(entry => /^UC[A-Za-z0-9_-]{22}$/.test(entry?.channel_id || ""))?.channel_id;
+  const officialFeed = await readYoutubeChannelFeed(channelId);
+  console.log("YouTube channel listing: " + entries.length + " entries; official feed: " + officialFeed.size + " entries.");
+  console.log("Channel metadata ID available: " + Boolean(channelId));
 
   const inventory = JSON.parse(await readFile(DATA, "utf8"));
   const confirmed = JSON.parse(await readFile(CONFIRMED_LINKS, "utf8")).videos;
@@ -86,17 +92,21 @@ async function main() {
     const record = old.get(entry.id);
     if (!record || !record.uploadDate?.startsWith("2026")) continue;
     knownInPlaylist.add(entry.id);
-    const newCategory = classification(entry.title, record.uploadDate,
+    const feedRecord = officialFeed.get(entry.id);
+    const sourceTitle = feedRecord?.title || entry.title || record.youtubeTitle || "";
+    const newCategory = classification(sourceTitle, record.uploadDate,
       confirmedIds.has(entry.id) ? "graduate" : record.category);
     if (record.category !== newCategory) { record.category = newCategory; revised++; }
-    if (entry.title && /졸업\s*작품|프로젝트/i.test(entry.title)) {
-      const verifiedTitle = workTitle(entry.title);
+    if (sourceTitle && /졸업\s*작품|프로젝트/i.test(sourceTitle)) {
+      const verifiedTitle = workTitle(sourceTitle);
       if (titleKey(verifiedTitle) !== titleKey(record.title)) {
         console.log(`Corrected stored work title for ${entry.id}: ${record.title} -> ${verifiedTitle}`);
         record.title = verifiedTitle; revised++;
       }
     }
-    if (record.youtubeTitle !== entry.title) { record.youtubeTitle = entry.title; revised++; }
+    if (sourceTitle && record.youtubeTitle !== sourceTitle) { record.youtubeTitle = sourceTitle; revised++; }
+    const feedDescription = feedRecord ? safeDescription(feedRecord.description) : "";
+    if (feedDescription && record.description !== feedDescription) { record.description = feedDescription; revised++; }
   }
 
   // The channel playlist supplies IDs and original titles. Metadata for new
@@ -109,7 +119,18 @@ async function main() {
   const relevantEntries = previousYearIndex < 0 ? entries : entries.slice(0, previousYearIndex);
   const candidates = relevantEntries
     .filter(entry => !old.has(entry.id) && !blocked.has(entry.id))
-    .filter(entry => /졸업\s*작품|프로젝트/i.test(entry.title || ""));
+    .filter(entry => /졸업\s*작품|프로젝트/i.test(officialFeed.get(entry.id)?.title || entry.title || ""));
+  // The official RSS feed includes exact publication dates for recent
+  // uploads and can supply them even when video-detail extraction is blocked.
+  // Only feed entries explicitly marked as 2026 works are eligible.
+  for (const entry of officialFeed.values()) {
+    if (entry.published.startsWith("2026") &&
+        /졸업\s*작품|프로젝트/i.test(entry.title) &&
+        !old.has(entry.id) && !blocked.has(entry.id) &&
+        !candidates.some(candidate => candidate.id === entry.id)) {
+      candidates.push({id:entry.id,title:entry.title});
+    }
+  }
   // Every department-supplied URL must be attempted even if the channel
   // listing omits it, truncates its title, or falls outside its first 90.
   for (const item of confirmed) {
@@ -123,16 +144,19 @@ async function main() {
     while (cursor < candidates.length) {
       const entry = candidates[cursor++];
       try {
-        const detail = await youtube([
+        const feedRecord = officialFeed.get(entry.id);
+        // Feed-derived publication times are a real source; no dates are guessed.
+        // yt-dlp is only needed for videos missing from the feed.
+        const detail = feedRecord ? null : await youtube([
           "--dump-single-json", "--skip-download", "--no-playlist",
           `https://www.youtube.com/watch?v=${entry.id}`,
         ], 45000);
-        const date = toDate(detail.upload_date || detail.release_date);
-        const originalTitle = detail.title || entry.title;
+        const date = feedRecord?.published || toDate(detail?.upload_date || detail?.release_date);
+        const originalTitle = feedRecord?.title || detail?.title || entry.title;
         const isConfirmed = confirmedIds.has(entry.id);
         // Classification and identity are grounded in the original video.
         const label = classification(originalTitle, date, isConfirmed ? "graduate" : "");
-        if (!date.startsWith("2026") || !label || !(Number(detail.duration) > 0) || !originalTitle) {
+        if (!date.startsWith("2026") || !label || !originalTitle || (!feedRecord && !(Number(detail?.duration) > 0))) {
           console.warn(`Metadata incomplete for ${entry.id}; retaining exact YouTube fallback link.`);
           continue;
         }
@@ -142,8 +166,8 @@ async function main() {
           category: label,
           cohort: "",
           uploadDate: date,
-          durationSeconds: Math.trunc(Number(detail.duration)),
-          description: safeDescription(detail.description) ||
+          ...(Number(detail?.duration) > 0 ? {durationSeconds:Math.trunc(Number(detail.duration))} : {}),
+          description: safeDescription(feedRecord?.description || detail?.description) ||
             `${workTitle(originalTitle)}의 2026년 소프트웨어 시연영상입니다. 한국폴리텍대학 서울강서캠퍼스 빅데이터소프트웨어공학과에서 개발한 결과물입니다.`,
           youtubeTitle: originalTitle,
         };
