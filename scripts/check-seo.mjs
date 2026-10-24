@@ -40,7 +40,7 @@ async function main() {
   assert(videos.every((video) => !unavailableIds.has(video.id)), "Unavailable videos must not be present in the active archive");
   assert(new Set(videos.map((video) => video.id)).size === videos.length, "YouTube IDs must be unique");
   assert(videos.every((video) => video.uploadDate), "Every video needs an uploadDate");
-  assert(videos.every((video) => video.durationSeconds > 0), "Every video needs a durationSeconds value");
+  assert(videos.every((video) => video.durationSeconds == null || video.durationSeconds > 0), "Known durationSeconds values must be positive; missing values must not be invented");
   assert(videos.filter((video) => video.description?.length >= 80).length >= 200, "At least 200 videos need detailed YouTube descriptions");
   assert(videos.every((video) => !/https?:\/\/|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/.test(video.description ?? "")), "Stored video descriptions must not include personal links or email addresses");
   assert(new Set(projects.map((project) => project.slug)).size === projects.length, "Project slugs must be unique");
