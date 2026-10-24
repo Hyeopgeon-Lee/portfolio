@@ -8,6 +8,7 @@ const DATA_PATH = path.join(ROOT, "data", "showcase-videos.json");
 const PROJECTS_PATH = path.join(ROOT, "data", "graduate-projects.json");
 const UNAVAILABLE_VIDEOS_PATH = path.join(ROOT, "data", "unavailable-videos.json");
 const CONFIRMED_LINKS_PATH = path.join(ROOT, "data", "2026-confirmed-video-links.json");
+const GRADUATION_ORDER_PATH = path.join(ROOT, "data", "2026-graduation-display-order.json");
 const todayParts = Object.fromEntries(
   new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
@@ -586,6 +587,30 @@ async function main() {
     if (!project.title || !project.summary || !project.images?.length) throw new Error(`Incomplete project record: ${project.id}`);
   });
   if (REFRESH_YOUTUBE) videos = await enrichYoutubeMetadata(videos);
+  // Keep a curator-defined presentation order even when nightly YouTube
+  // synchronization updates the underlying inventory in upload-date order.
+  // Preserve the placement/order of all non-2026-graduation videos.
+  const curatedOrder = JSON.parse(await readFile(GRADUATION_ORDER_PATH, "utf8")).videoIds;
+  if (!Array.isArray(curatedOrder) || !curatedOrder.length ||
+      new Set(curatedOrder).size !== curatedOrder.length) {
+    throw new Error("2026 graduation display priority is missing or duplicated");
+  }
+  const is2026Graduation = v => v.category === "graduate" && v.uploadDate?.startsWith("2026");
+  const graduation2026 = videos.filter(is2026Graduation);
+  const byId = new Map(graduation2026.map(v => [v.id, v]));
+  for (const id of curatedOrder) {
+    if (!/^[A-Za-z0-9_-]{11}$/.test(id) || !byId.has(id))
+      throw new Error(`Curated 2026 graduation video missing: ${id}`);
+  }
+  const pinnedIds = new Set(curatedOrder);
+  const orderedGraduation2026 = [
+    ...curatedOrder.map(id => byId.get(id)),
+    ...graduation2026.filter(v => !pinnedIds.has(v.id)),
+  ];
+  let graduationSlot = 0;
+  const orderedShowcaseVideos = videos.map(v =>
+    is2026Graduation(v) ? orderedGraduation2026[graduationSlot++] : v
+  );
   const publishedIds = new Set(videos.map(video => video.id));
   const pendingLinks = confirmedLinks.filter(item => !publishedIds.has(item.id));
   // Hide the former "link-only" placeholder once all confirmed video IDs
@@ -602,7 +627,7 @@ async function main() {
     await readFile(showcasePath, "utf8"),
     "<!-- SEO_VIDEO_CARDS_START -->",
     "<!-- SEO_VIDEO_CARDS_END -->",
-    videos.map(video => cardMarkup(video, videos)).join("\n"),
+    orderedShowcaseVideos.map(video => cardMarkup(video, videos)).join("\n"),
   ), videos);
   const showcaseWithPending = replaceGeneratedBlock(
     showcase, "<!-- SEO_PENDING_2026_START -->", "<!-- SEO_PENDING_2026_END -->",
@@ -629,8 +654,8 @@ async function main() {
     ),
     "<!-- SEO_2026_VIDEOS_START -->",
     "<!-- SEO_2026_VIDEOS_END -->",
-    videos.filter((video) => video.category === "graduate" && video.uploadDate?.startsWith("2026"))
-      .slice(0, 6).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
+    orderedGraduation2026
+      .slice(0, 7).map((video) => latestCardMarkup(video).replace("<small>졸업작품</small>", "<small>2026 졸업작품</small>")).join("\n"),
   ), videos);
   const homeWithProjects = replaceGeneratedBlock(
     home, "<!-- SEO_2026_PRACTICE_START -->", "<!-- SEO_2026_PRACTICE_END -->",
