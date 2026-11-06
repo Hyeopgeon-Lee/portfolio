@@ -6,5 +6,21 @@
     "confirmedBy": "2026-10-16 사용자가 제공한 YouTube 재생 오류 화면",
     "note": "업로더가 삭제한 동영상입니다. 아카이브/사이트맵에서 제외.",
     "checkedAt": "2026-10-16"
+  },
+  {
+    "id": "64mZfwmKD80",
+    "title": "DeepScan (2026 초기 프로젝트)",
+    "status": "excluded_by_department",
+    "confirmedBy": "2026-11-06 학과 요청",
+    "note": "포트폴리오 전시에서 제외하고 자동 동기화 재등록 방지. YouTube 삭제 여부 자체는 미확인.",
+    "checkedAt": "2026-11-06"
+  },
+  {
+    "id": "7KiS8G5HjGc",
+    "title": "MauM (2026 초기 프로젝트)",
+    "status": "excluded_by_department",
+    "confirmedBy": "2026-11-06 학과 요청",
+    "note": "포트폴리오 전시에서 제외하고 자동 동기화 재등록 방지. YouTube 삭제 여부 자체는 미확인.",
+    "checkedAt": "2026-11-06"
   }
 ]
