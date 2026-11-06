@@ -71,7 +71,15 @@ async function main() {
   assert(activeDirectories.length === videos.length, `Expected ${videos.length} active video directories, found ${activeDirectories.length}`);
   for (const unavailableVideo of unavailable) {
     const file = `videos/${unavailableVideo.id}/index.html`;
-    const html = await readFile(path.join(ROOT, file), "utf8");
+    let html;
+    try {
+      html = await readFile(path.join(ROOT, file), "utf8");
+    } catch (error) {
+      // Department-requested removals have no page at all; older unavailable
+      // URLs may retain an explicit noindex tombstone.
+      if (error?.code === "ENOENT" && unavailableVideo.status === "excluded_by_department") continue;
+      throw error;
+    }
     assert(html.includes('content="noindex, nofollow"'), `${file}: unavailable video page must be noindex`);
     assert(!html.includes("<iframe"), `${file}: unavailable video page must not embed removed content`);
   }
