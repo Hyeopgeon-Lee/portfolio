@@ -32,10 +32,11 @@ function toDate(value) {
 }
 function classification(title, date, fallback = "") {
   const text = String(title || "").normalize("NFKC");
-  // Explicit source title always wins, even for the same student/team.
+  // Recordings before July are development projects, even if their original
+  // YouTube titles say "졸업작품". Apply this consistently on every sync.
+  if (date?.startsWith("2026") && date.slice(0,10) < JULY) return "practice";
   if (/졸업\s*작품/.test(text)) return "graduate";
   if (/프로젝트|project\s*(?:demo|presentation)|프로젝트\s*실습/i.test(text)) return "practice";
-  if (date?.startsWith("2026") && date.slice(0,10) < JULY) return "practice";
   return fallback;
 }
 function workTitle(source) {
@@ -113,8 +114,17 @@ async function main() {
     knownInPlaylist.add(entry.id);
     const feedRecord = officialFeed.get(entry.id);
     const sourceTitle = feedRecord?.title || entry.title || record.youtubeTitle || "";
-    const newCategory = classification(sourceTitle, record.uploadDate,
-      confirmedIds.has(entry.id) ? "graduate" : record.category);
+    // An earlier recording stays a project when a later verified graduation
+    // upload exists for the same work, including drafts uploaded after July.
+    const sourceWorkKey = titleKey(workTitle(sourceTitle || record.title));
+    const hasLaterFinal = [...old.values()].some(other =>
+      other.id !== entry.id && other.category === "graduate" &&
+      other.uploadDate?.startsWith("2026") &&
+      other.uploadDate > record.uploadDate &&
+      titleKey(other.title) === sourceWorkKey);
+    const newCategory = hasLaterFinal ? "practice" :
+      classification(sourceTitle, record.uploadDate,
+        confirmedIds.has(entry.id) ? "graduate" : record.category);
     if (record.category !== newCategory) { record.category = newCategory; revised++; }
     if (sourceTitle && /졸업\s*작품|프로젝트/i.test(sourceTitle)) {
       const verifiedTitle = workTitle(sourceTitle);
