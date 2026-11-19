@@ -233,7 +233,7 @@ img { display: block; max-width: 100%; }
   .latest-grid, .video-grid { grid-template-columns: 1fr; }
   .showcase-hero { padding: 4rem 1.2rem 2rem; }
   .showcase-hero h1 { font-size: clamp(2.8rem, 13vw, 4.3rem); }
-  .showcase-counts { width: 100%; }
+  .showcase-counts { width: 100%; flex-wrap: wrap; }
   .showcase-controls { top: 64px; align-items: stretch; flex-direction: column; padding: .8rem 1.2rem; }
   .showcase-search { width: 100%; }
   .showcase-list { padding: 0 1.2rem 6rem; }
